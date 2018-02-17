@@ -1,0 +1,87 @@
+@import 'font-icons.css';
+
+::-webkit-scrollbar {
+    width: 4px;
+}
+::-webkit-scrollbar-track {
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+}
+::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    background: rgba(0,0,0,0.08);
+}
+::-webkit-scrollbar-thumb:window-inactive {
+	background: rgba(0,0,0,0.4);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    background: #444;
+}
+::-webkit-scrollbar:horizontal{
+    height: 4px;
+}
+
+body{
+    margin:0;
+}
+
+html,input,button,textarea,select{
+    outline: none;
+}
+
+.top_links{
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+}
+
+.top_link{
+    text-decoration:none;
+    line-height:2rem;
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+    border: none;
+    background: transparent;
+    display: inline-block;
+    height: 100%;
+    padding: 0;
+    cursor: pointer;
+}
+
+.header{
+    height: 2.5rem;
+    line-height: 2.5rem;
+    border-bottom: solid 1px rgba(1,1,1,0.08);
+    box-sizing: border-box;
+}
+
+.bttn {
+    display: inline-block;
+    color: hsla(0, 0%, 27%, 0.8);
+    text-decoration: none;
+    user-select: none;
+    outline: none;
+    border: none;
+    background: transparent;
+    transition: all .218s ease 0s;
+    font-size: large;
+    min-width: 2.75rem;
+}
+
+A {color: #444}
+
+.bttn:hover {
+    color: #181818;
+    background: #f7f7f7 linear-gradient(#f7f7f7, #f1f1f1);
+}
+.bttn:active {
+}
+
+.bttn:first-child{
+    margin-left: 0;
+}
+
+p{margin: 0;}

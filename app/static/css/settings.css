@@ -1,0 +1,62 @@
+li {
+    list-style-type: none; /* Убираем маркеры */
+    /*padding-top: 0.5rem;*/
+}
+ul {
+    margin-left: 0;
+    padding-left: 0;
+    margin-bottom: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    padding-top: 0;
+}
+
+.chat_settings_hidden{
+    display: none;
+}
+
+.thread_settings_hidden{
+    display: none;
+}
+
+
+#chat_settings{
+    position: relative;
+    border: 1px solid #444;
+    border-top: none;
+    color: #444;
+    height: fit-content;
+    background: white;
+    z-index: 2;
+    padding: 0.5rem;
+    text-align: left;
+}
+
+#thread_settings{
+    position: relative;
+    border: 1px solid #444;
+    border-top: none;
+    /* width: 10rem; */
+    height: fit-content;
+    background: white;
+    z-index: 2;
+    padding: 0.5rem;
+    text-align: left;
+    padding-top: 1rem;
+    margin-top: 2px;
+}
+
+.option:before {
+    font-size: large;
+    margin-right: 0.5rem;
+}
+
+.option_input{
+    width: 3rem;
+}
+
+.select_border{
+    height:1.5rem;
+    width:17rem;
+    border:1px solid rgba(0,0,0,0.2);
+}

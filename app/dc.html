@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>arhichat</title>
+    <meta charset="utf-8">
+    <meta http-equiv="Expires" content="0">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no">
+    <link rel="stylesheet" href="../static/css/dc.css?{{revision}}">
+    <link rel="stylesheet" href="../static/css/main.css?{{revision}}">
+    <link rel="stylesheet" href="../static/css/settings.css?{{revision}}">
+    <link rel="stylesheet" href="../static/css/chat.css?{{revision}}">
+    <link rel="stylesheet" href="../static/css/dialog.css?{{revision}}">
+    <link rel="stylesheet" href="../static/css/notes.css?{{revision}}">
+    <link rel="stylesheet" href="../static/css/archive.css?{{revision}}">
+    <link rel="stylesheet" href="../static/css/vue-multiselect.min.css?{{revision}}">
+    <link rel="stylesheet" href="../static/css/medium-editor.css?{{revision}}">
+    <link rel="stylesheet" href="../static/css/beagle.css?{{revision}}">
+    <link rel="manifest" href="../static/manifest.json">
+</head>
+<body>
+<base target="_blank">
+<script>
+    window.transport = {{transport|tojson}};
+    window.font_size = {{font_size|tojson}};
+    window.style = {{style|tojson}};
+</script>
+
+<div id="app"></div>
+<script src="/static/build.js?{{revision}}"></script>
+
+<script>
+    window.vue_app.$store.commit('setUsers',{{active_users|tojson}});
+    window.vue_app.$store.commit('setCuruserid',{{curuserid|tojson}});
+    window.vue_app.$store.commit('setOpts',{{opts|tojson}});
+</script>
+
+</body>
+</html>

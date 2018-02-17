@@ -1,0 +1,54 @@
+.search_div{
+    display: flex;
+    float: right;
+    max-width: 16rem;
+    width: calc(100% - 10rem);
+    background: transparent;
+    height: 2rem;
+    line-height: 2rem;
+    margin-top: 0.2rem;
+    margin-right: 0.25rem;
+    padding-left: 0.25rem;
+    padding-right: 0.25rem;
+    border-bottom: #444 solid 1px;
+}
+
+.archive_search{
+    width: Calc(100% - 2.5rem);
+    flex: 1;
+    border: none;
+    outline: none;
+    line-height: 1.5rem;
+    padding-left: 0.25rem;
+    background: transparent;
+    color: #444;
+}
+
+.submit_search:hover{
+    filter: saturate(200%);
+}
+
+.submit_search{
+    flex: 0;
+    border: none;
+    background: none;
+    color: #444;
+}
+
+.page_nav{
+        text-decoration: none;
+        width: 1rem;
+        display: inline-block;
+        text-align: center;
+        height: 100%;
+}
+
+.page_nav_input{
+    border: none;
+    text-align: center;
+    width: 12rem;
+}
+
+.search_link{
+    text-decoration: none;
+}

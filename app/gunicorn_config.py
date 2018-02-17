@@ -1,0 +1,10 @@
+workers = 1
+worker_class = 'geventwebsocket.gunicorn.workers.GeventWebSocketWorker'
+# worker_class = 'eventlet'
+bind = '0.0.0.0:5000'
+pidfile = '/tmp/gunicorn.pid'
+debug = False
+# loglevel = 'debug'
+errorlog = '/tmp/gunicorn.log'
+daemon = False
+keepalive = 1

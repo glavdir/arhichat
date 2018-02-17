@@ -1,0 +1,157 @@
+html,input,button,textarea,select{
+    font-family:Tahoma;
+    font-size:medium;
+    outline: none;
+}
+
+/*select {*/
+  /*-webkit-appearance: none;*/
+  /*-moz-appearance: none;*/
+  /*appearance: none;*/
+/*}*/
+
+.bttn_hide{
+  background: none;
+  border:none;
+  display:inline-block;
+  line-height:2rem;
+  color:white;
+}
+
+.bttn_hide:hover {
+  color:lightgray;
+
+}
+
+.bttn_hide:active {
+}
+
+#hide_dialog {
+  /*float:right;*/
+}
+
+#hide_chat {
+  /*float:left;*/
+}
+
+.hide{display: none}
+
+.bttn-color{
+  width:4.5rem;
+  height:100%;
+}
+
+/*.wrapper{*/
+    /*display: flex;*/
+    /*flex-direction:row;*/
+    /*height: 100%;*/
+    /*width: 100%;*/
+    /*position: absolute;*/
+/*}*/
+
+/*#chat {*/
+    /*float:left;*/
+    /*!*flex: 64%;*!*/
+    /*width: 600%;*/
+/*}*/
+/*#dialog {*/
+    /*float: right;*/
+    /*border-left: 1px solid rgba(0,0,0,0.08);*/
+    /*width: 400%;*/
+/*}*/
+
+/*.header{*/
+    /*height: 2.5rem;*/
+    /*line-height: 2.5rem;*/
+    /*border-bottom: solid 1px rgba(1,1,1,0.08);*/
+    /*box-sizing: border-box;*/
+/*}*/
+
+/*.top_header{*/
+    /*height: 2rem;*/
+    /*background: #444;*/
+    /*!*display:none;*!*/
+/*}*/
+
+/*.top_link{*/
+    /*color: white;*/
+    /*text-decoration:none;*/
+    /*line-height:2rem;*/
+    /*margin-left: 0.25rem;*/
+    /*margin-right: 0.25rem;*/
+    /*border: none;*/
+    /*background: transparent;*/
+    /*display: inline-block;*/
+    /*height: 100%;*/
+    /*padding: 0;*/
+    /*cursor: pointer;*/
+/*}*/
+
+/*.top_link:hover{*/
+  /*color: lightgray;*/
+/*}*/
+
+/*.main{*/
+    /*height: calc(100% - 8rem - 3px);*/
+ /*}*/
+
+/*.footer {*/
+    /*margin-top: 0.5rem;*/
+    /*!* border-top: 1px solid rgba(0,0,0,0.08); *!*/
+    /*height: calc(2.5rem + 2px);*/
+    /*background: white;*/
+/*}*/
+
+/*.top_links{*/
+    /*padding-left: 0.25rem;*/
+    /*padding-right: 0.25rem;*/
+/*}*/
+
+/*.bttn {*/
+    /*display: inline-block;*/
+    /*color: hsla(0, 0%, 27%, 0.8);*/
+    /*text-decoration: none;*/
+    /*user-select: none;*/
+    /*outline: none;*/
+    /*border: none;*/
+    /*background: transparent;*/
+    /*transition: all .218s ease 0s;*/
+    /*font-size: large;*/
+    /*min-width: 2.75rem;*/
+/*}*/
+/*.bttn:hover {*/
+  /*color: #181818;*/
+  /*background: #f7f7f7 linear-gradient(#f7f7f7, #f1f1f1);*/
+/*}*/
+/*.bttn:active {*/
+/*}*/
+
+/*.bttn:first-child{*/
+  /*margin-left: 0;*/
+/*}*/
+
+/*.bttn-splitter{*/
+    /*width: 1px;*/
+    /*!* background:linear-gradient(to top, rgb(245,245,245) 20%, lightgray 20%, lightgray 80%, rgb(245,245,245) 80%) *!*/
+/*}*/
+
+/*#ping_time{*/
+    /*width: 5rem;*/
+    /*text-align: right;*/
+    /*margin-right: 0.5rem;*/
+    /*cursor: pointer;*/
+/*}*/
+
+/*#king_alive{*/
+    /*position:absolute;*/
+    /*width: 100%;*/
+    /*height: 100%;*/
+    /*background:rgba(255,255,255,0.4);*/
+    /*cursor: pointer;*/
+/*}*/
+
+/*#kong_alive{*/
+    /*width: 100%;*/
+    /*height: 50%;*/
+    /*object-fit: contain;*/
+/*}*/

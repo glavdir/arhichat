@@ -1,0 +1,28 @@
+body{
+    background:#ECF9FD;
+}
+
+html,input,button,textarea,select{
+    font-family:Verdana;
+}
+
+.panelHeader,.panelTitle  {
+    background:#CFE7F0 url(http://arhimag.org/images/oceanzero/oceanzero_catbg.gif) repeat-x top left;
+    color: #00465F;
+}
+
+.top_link,.bp-dropdown__btn,.panelOpenClose  {
+    color: #00465F;
+    text-decoration: none;
+    height: 2rem;
+}
+
+.top_link:hover,.bp-dropdown__btn,:hover,.panelOpenClose:hover{
+    color: #000000;
+}
+
+
+.ActiveTab{
+    border-bottom: 2px solid navy;
+}
+

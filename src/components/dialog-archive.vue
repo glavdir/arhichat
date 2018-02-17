@@ -1,0 +1,170 @@
+<template>
+<div class="dialog_archive_root">
+    <div class="dialog_archive_header header">
+        <div class="dialog_thread"><!--
+            --><div class="dialog_thread_select">
+                <multiselect
+                    v-model="selThreads"
+                    :options="threads"
+                    :multiple="true"
+                    :show-labels="false"
+                    :allow-empty="true"
+                    track-by="title"
+                    :custom-label="customLabel"
+                    placeholder = "Выберите канал..."
+                    class="dats"
+                    :limit="1"
+                    :limit-text="limitText"
+                    :close-on-select="false"
+                    :clear-on-select="false"
+                    @input = "changeThreads"
+                >
+                    <template slot="tag" slot-scope="props"><span class="custom__tag"><span>#{{props.option.threadid }} {{props.option.title}} </span></span></template>
+                </multiselect>
+
+            </div><!--
+            --><div class="dialog_thread_buttons">
+                <!--<pages v-model="page" :pageCount="pageCount" @input="changeThreads"></pages>-->
+            </div>
+        </div>
+    </div>
+    <div class="dialog_archive_main">
+        <div class="dialog_archive_posts">
+            <div class='dialog_archive_container'>
+                <div  class="dialog_archive_replies">
+                    <template v-for = "(pst) in posts">
+                        <div class="reply" contenteditable="false" :data-postid="pst.postid" v-html="pst.pagetext"></div>
+                    </template>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="dialog_archive_footer">
+        <pages v-model="page" :pageCount="pageCount" @input="changeThreads"></pages>
+        <div class="dialog_archive_footer_splitter"></div>
+        <div class="search_div">
+            <input class="archive_search" type="text" placeholder="Поиск для бога поиска..." v-model="searchString" @change="doSearch">
+            <button class ="submit_search icon-search" type="submit" @click="doSearch"></button>
+        </div>
+    </div>
+</div>
+</template>
+
+<script>
+    import global from '../global.js';
+    import axios from 'axios';
+    import multiselect from 'vue-multiselect';
+    import pages from './pages';
+    // import * as styles from "vue-multiselect/dist/vue-multiselect.min.css"
+
+	export default {
+		name: "dialog-archive",
+        data: function() {return{
+            posts: [],
+            pageCount:1,
+            page:1,
+            selThreads:[],
+            dispPage: '',
+            searchString:''
+        }},
+        methods:{
+            customLabel (option) {
+                return "#"+option.threadid + " " + option.title;
+            },
+            limitText(){
+                return 'И еще '+ (this.selThreads.length-1) + '';
+            },
+            getPosts() {
+                var this_app = this;
+                if (this.selThreads.length > 0) {
+                    var threadsstr='';
+
+                    for (var thr in this.selThreads){
+                        var add =  (threadsstr=='')? '' : ',';
+                        threadsstr = threadsstr + add + this.selThreads[thr].threadid;
+                    }
+                    // console.log(threadsstr);
+                    axios.get(global.curdomain + '/api/posts_archive/', {withCredentials: true, params: {threads: threadsstr, page:this.page, search:this.searchString}})
+                        .then(function (response) {
+                            // console.log(response.data);
+                            this_app.posts = response.data.posts.slice().reverse();
+                            this_app.pageCount = response.data.page_count;
+                        });
+                }else{
+                    this_app.posts = [];
+                }
+            },
+            doSearch(){
+                this.page = 1;
+                this.getPosts();
+            },
+            changeThreads(){
+                this.getPosts()
+            },
+            selectThread(){
+                if (this.$store.state.lastThreadid!=0){
+                    // console.log(this.$store.state.lastThreadid);
+                    this.selThreads.push(this.$store.state.threads[global.findObject(this.$store.state.threads,'threadid',this.$store.state.lastThreadid)]);
+                }
+                this.getPosts();
+            }
+        },
+        computed:{
+            threads:function(){
+                return this.$store.state.threads;
+            },
+        },
+        components: {
+            'multiselect':multiselect,
+            'pages':pages
+        },
+        mounted(){
+            if (this.$store.state.lastThreadid!=0){
+                this.selectThread();
+            }else {
+                this.openThread = (data) => {
+                    this.selectThread();
+                };
+                this.$bus.$on("openThread", this.openThread);
+            }
+        },
+        beforeDestroy: function() {
+            this.$bus.$off("openThread", this.openThread);
+        },
+    }
+</script>
+
+<style scoped>
+    .dialog_archive_root{
+        width: 100%;
+        height: 100%;
+    }
+
+    .dialog_archive_header{
+        padding-right: 0.5rem
+    }
+
+    .dialog_archive_main{
+        width: 100%;
+        height: calc(100% - 5.5rem - 2px);
+    }
+
+    .dialog_archive_posts{
+        margin: 0.5rem;
+        overflow-y: scroll;
+        height: calc(100% - 0.5rem);
+        box-sizing: border-box;
+    }
+    .dialog_archive_container{
+        margin-right: 0.5rem;
+    }
+    .dialog_archive_footer{
+        height: 2.5rem;
+        box-sizing: border-box;
+        display: flex;
+    }
+
+    .dialog_archive_footer_splitter{
+        flex: 1;
+    }
+</style>

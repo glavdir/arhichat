@@ -1,0 +1,63 @@
+body{
+    background: #FAE2C1;
+}
+
+html,input,button,textarea,select{
+    font-family:Verdana;
+    font-size:11;
+}
+
+.top_header {
+    height: 2.5rem;
+    background: #D9C09D;
+    /* display: none; */
+    /* font: bold 10pt verdana; */
+    color: #74685A;
+    line-height: 2.6rem;
+    text-align: center;
+    display: block;
+    /* margin-left: 5rem; */
+}
+
+#chat_top_header{
+   /*! padding-left: 5rem; */
+}
+
+.top_link {
+    color: #74685A;
+    text-decoration: none;
+    /* line-height: 2.5rem; */
+    margin-left: 0.5rem;
+    font: bold 10pt verdana;
+    /* padding-bottom: 2rem; */
+    height: 2rem;
+    padding-top: 0.5rem;
+}
+
+.bttn_hide{
+    padding-top:0.3rem;
+}
+
+#ping_time{
+    line-height: 1.82rem;
+}
+
+.top_link:hover {
+    color: #393535;
+}
+
+.main {
+    height: calc(100% - 8.4rem - 4px);
+}
+
+.pmlink{
+    font-size: 9;
+}
+
+.mat:before{
+    font-size:11;
+}
+
+.bttn{
+    font-size:13;
+}

@@ -1,0 +1,22 @@
+html,input,button,textarea,select{
+    font-family:verdana;
+}
+
+body{
+    background: #FAE2C1;
+}
+
+.panelHeader,.panelTitle {
+    background: #D9C09D;
+    color: #74685A;
+/*     text-align: center; */
+/*     display: block; */
+}
+
+.top_link,.bp-dropdown__btn,.panelOpenClose  {
+    color: #74685A;
+}
+
+.top_link:hover,.bp-dropdown__btn,:hover,.panelOpenClose:hover{
+    color: #393535;
+}
