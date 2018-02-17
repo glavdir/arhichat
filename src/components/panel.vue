@@ -11,7 +11,9 @@
                             <ul>{{ pnl.title }}</ul>
                         </div>
                     </template>
-                    <!--<label>Скрыть вторую панель</label>-->
+                    <div class="panelLabelLine"></div>
+                    <a class="panelLabel" href="http://arhimag.org">Форум</a>
+                    <a class="panelLabel" href="http://wiki.arhimag.org">Архивики</a>
                 </template>
             </dropdown>
             <div class="panelFlex"> </div>
@@ -142,6 +144,16 @@
     .panelLabel{
         margin: 0.25rem;
         cursor: pointer;
+        display: block;
+        text-decoration: none;
+    }
+
+    .panelLabelLine{
+        margin: 0.25rem;
+        height: 1px;
+        border-bottom: 1px solid lightgrey;
+        margin-top: 0.4rem;
+        margin-bottom: 0.4rem;
     }
 
     .panelOpenClose:hover{
