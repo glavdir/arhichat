@@ -110,3 +110,21 @@ class notes(db.Model):
     private = db.Column(db.Integer, index=False, unique=False)
     text    = db.Column(db.Text,     index=False, unique=False)
 
+
+class pychat_characters(db.Model):
+    CharId          = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True)
+    Name            = db.Column(db.VARCHAR, index=False, unique=False)
+    Description     = db.Column(db.VARCHAR, index=False, unique=False)
+    Author          = db.Column(db.SmallInteger, index=False, unique=False)
+    Thread          = db.Column(db.Integer, index=False, unique=False)
+    TextStyle       = db.Column(db.VARCHAR, index=False, unique=False)
+
+# CREATE TABLE `pychat_characters` (
+#   `CharId` int(11) NOT NULL AUTO_INCREMENT,
+#   `Name` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
+#   `Description` varchar(2048) COLLATE utf8_unicode_ci DEFAULT NULL,
+#   `Author` smallint(11) NOT NULL COMMENT 'Who created this character',
+#   `Thread` int(11) DEFAULT NULL COMMENT 'Null for neq characters',
+#   `TextStyle` varchar(1024) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Text color, font, etc.',
+#   PRIMARY KEY (`CharId`)
+# ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

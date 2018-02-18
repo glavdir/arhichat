@@ -27,6 +27,7 @@
     import Archive from './components/archive';
     import Notes from './components/notes';
     import DialogArchive from './components/dialog-archive';
+    import CharEdit from './components/characterEdit.vue';
 
     import VueRouter from 'vue-router';
     Vue.use(VueRouter);
@@ -51,6 +52,7 @@
         Archive: {title:'Архив чата',   component:Archive},
         Options: {title:'Настройки',    component:Options},
         DialogArchive:{title:'Архив игры', component:DialogArchive},
+        CharEdit:{name:'CharEdit',title:'Персонажи',component:CharEdit},
     };
 
     export default {

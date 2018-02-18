@@ -5,6 +5,7 @@ from app import parser,post_parser
 from app import clients
 from app import redis
 from app import db
+from sqlalchemy import orm
 from sqlalchemy import desc
 from sqlalchemy import or_
 from sqlalchemy import and_
@@ -14,6 +15,33 @@ import json
 from collections import OrderedDict
 
 grouptags = []
+
+
+def get_query_result(q_result, model_class):
+    class_columns = model_class.__dict__
+    result = dict()
+    for c in class_columns:
+        if isinstance(class_columns[c], orm.attributes.QueryableAttribute):
+            result[c] = getattr(q_result, c)
+    return result
+
+
+def copy_model(model_dest, model_source, model_constructor):
+    class_columns = model_constructor.__dict__
+    result = dict()
+    for c in class_columns:
+        if isinstance(class_columns[c], orm.attributes.QueryableAttribute):
+            setattr(model_dest, c, getattr(model_source,c))
+    return model_dest
+
+
+def dict_to_model(data, model_class):
+    class_columns = model_class.__dict__
+    model = model_class()
+    for key in data:
+        if key in class_columns:
+            setattr(model, key, data[key])
+    return model
 
 def get_user_id_by_session(bbsession):
     session = models.arhsession.query.filter_by(sessionhash=bbsession).first()
@@ -372,3 +400,48 @@ def save_threadsettings(options,threadid):
 def get_postst_by_search_string(search_str):
     return db.session.execute('SELECT * FROM arhpost  WHERE MATCH (pagetext) AGAINST (:search_str)',{'search_str':search_str})
 
+# characters
+
+def get_character(character_id):
+    record = models.pychat_characters.query.get(character_id)
+    result = get_query_result(record, models.pychat_characters)
+    user = get_user_by_userid(result['Author'])
+    result['AuthorName'] = user.username
+    return result
+
+
+def get_character_list(thread_filter):
+    query = models.pychat_characters.query.with_entities(models.pychat_characters.Name,
+                                                         models.pychat_characters.CharId,
+                                                         models.pychat_characters.Thread)
+    if thread_filter is "*":
+        result = query.all()
+    elif thread_filter is None or thread_filter == '': # квенты
+        result = query.filter_by(Thread=None).all()
+    else:
+        result = query.filter_by(Thread=thread_filter).all()
+    return result
+
+
+def write_character(character_dict):
+
+    model = dict_to_model(character_dict, models.pychat_characters)
+
+    if character_dict['CharId'] is None:
+        db.session.add(model)
+    else:
+        dest = models.pychat_characters.query.get(character_dict['CharId'])
+        if dest is not None:
+            copy_model(dest, model, models.pychat_characters)
+    db.session.commit()
+
+
+def delete_character(character_id):
+    if character_id is None:
+        return False
+
+    character = models.pychat_characters.query.get(character_id)
+    db.session.delete(character)
+    db.session.commit()
+    character = models.pychat_characters.query.get(character_id)
+    return character is None
