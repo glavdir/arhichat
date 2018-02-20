@@ -32,7 +32,7 @@ const store = new Vuex.Store({
             leftLast:'Chat',
             rightLast:'Dialog',
         },
-        threads:[],
+        // threads:[],
         lastThreadid:0
     },
     mutations: {
@@ -95,9 +95,9 @@ const store = new Vuex.Store({
         setTimezoneoffset(state, timezoneoffset) {
             state.timezoneoffset = timezoneoffset;
         },
-        setThreads(state,threads){
-            state.threads = threads;
-        },
+        // setThreads(state,threads){
+        //     state.threads = threads;
+        // },
         setLastThreadid(state,threadid){
             state.lastThreadid = threadid;
         }

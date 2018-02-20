@@ -33,6 +33,7 @@
                                        :text='pst.pagetext'
                                        :options="{toolbar: false}"
                                        custom-tag='div'
+                                       data-placeholder=" "
                                        v-on:edit='editPost(pst,pstkey,$event)'/>
                     </template>
                 </div>
@@ -65,6 +66,7 @@
 
 import global from '../global.js';
 import Vue from 'vue';
+import axios from 'axios';
 import diff_match_patch from 'diff-match-patch'
 var dmp = new diff_match_patch.diff_match_patch();
 
@@ -79,7 +81,7 @@ import editor from 'vue2-medium-editor'
 
 export default {
     data: function() {return{
-        // threads:[],
+        threads:[],
         threadid:0,
         curThread:{isFav:false,threadid:0,title:'Канал не выбран'},
         dialogText: '',
@@ -87,15 +89,15 @@ export default {
         threadColor: '',
         posts: [],
         prevs: [],
-        // startThread:0
+        startThread:0
     }},
     computed:{
         curuserid:function(){
             return this.$store.state.curuserid
         },
-        threads:function () {
-            return this.$store.state.threads;
-        }
+        // threads:function () {
+        //     return this.$store.state.threads;
+        // }
     },
     components: {
         'color-select': color_select,
@@ -130,12 +132,12 @@ export default {
         nl2br:function(str){
             return str.replace(/([^>])\n/g, '$1<br/>');
         },
-        // setThreads(data){
-        //     // this.threads = data.threads;
-        //     this.$store.commit('setThreads',data.threads);
-        //     this.threadid = data.threadid;
-        //     this.setThreadByID(data.threadid)
-        // },
+        setThreads(data){
+            this.threads = data.threads;
+            // this.$store.commit('setThreads',data.threads);
+            this.threadid = data.threadid;
+            this.setThreadByID(data.threadid)
+        },
         customLabel (option) {
             return "#"+option.threadid + " " + option.title
         },
@@ -147,8 +149,12 @@ export default {
         changeThread () {
             this.threadid = this.curThread.threadid;
             this.refreshThread();
+            this.setLastThread();
+        },
+        setLastThread(){
             this.$socket.emit('set_last_thread', {threadid:this.threadid});
         },
+
         changeFav(){
             this.curThread.isFav = !this.curThread.isFav;
             this.$socket.emit('set_favorites', {'threadid':this.threadid});
@@ -255,11 +261,12 @@ export default {
         this.openThread = (data) => {
             this.$store.commit('setLastThreadid',data.threadid);
             this.setThreadByID(data.threadid);
-            // if (this.threads.length!=0){
-            //     this.setThreadByID(data.threadid);
-            // }else {
-		     //    this.startThread = data.threadid;
-            // }
+            this.setLastThread();
+            if (this.threads.length!=0){
+                this.setThreadByID(data.threadid);
+            }else {
+		        this.startThread = data.threadid;
+            }
 	    };
         this.$bus.$on("openThread", this.openThread);
     },
@@ -267,22 +274,16 @@ export default {
         this.$bus.$off("openThread", this.openThread);
     },
     created(){
-        if (this.threadid==0 && this.threads.length!=0){
-            this.setThreadByID(this.$store.state.lastThreadid);
+        var this_app = this;
+        if (this.threads.length==0){
+            axios.get(global.curdomain+'/api/threads/', {withCredentials:true})
+                .then(function (response) {
+                    if (this_app.startThread!=0){
+                        response.data.threadid = this_app.startThread;
+                    };
+                    this_app.setThreads(response.data);
+                });
         }
-        // var this_app = this;
-        // if (this.threads.length==0){
-            // axios.get(global.curdomain+'/api/threads/', {withCredentials:true})
-            //     .then(function (response) {
-            //         // if (this_app.startThread!=0){
-            //         //     response.data.threadid = this_app.startThread;
-            //         // };
-            //         this_app.setThreads(response.data);
-            //     });
-        // }
-        // else {
-        //
-        // }
     },
 };
 

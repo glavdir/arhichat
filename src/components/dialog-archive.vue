@@ -63,11 +63,18 @@
             posts: [],
             pageCount:1,
             page:1,
+            threads:[],
             selThreads:[],
             dispPage: '',
-            searchString:''
+            searchString:'',
+            startThread: 0,
         }},
         methods:{
+            setThreads(data){
+                this.threads = data.threads;
+                this.startThread = data.threadid;
+                this.selectThread();
+            },
             customLabel (option) {
                 return "#"+option.threadid + " " + option.title;
             },
@@ -102,34 +109,41 @@
                 this.getPosts()
             },
             selectThread(){
-                if (this.$store.state.lastThreadid!=0){
-                    // console.log(this.$store.state.lastThreadid);
-                    this.selThreads.push(this.$store.state.threads[global.findObject(this.$store.state.threads,'threadid',this.$store.state.lastThreadid)]);
+                if (this.startThread!=0){
+                    this.selThreads.push(this.threads[global.findObject(this.threads,'threadid',this.startThread)]);
                 }
                 this.getPosts();
             }
         },
         computed:{
-            threads:function(){
-                return this.$store.state.threads;
-            },
+            // threads:function(){
+            //     return this.$store.state.threads;
+            // },
         },
         components: {
             'multiselect':multiselect,
             'pages':pages
         },
-        mounted(){
-            if (this.$store.state.lastThreadid!=0){
-                this.selectThread();
-            }else {
-                this.openThread = (data) => {
-                    this.selectThread();
-                };
-                this.$bus.$on("openThread", this.openThread);
+        created(){
+            // if (this.$store.state.lastThreadid!=0){
+            //     this.selectThread();
+            // }else {
+            //     this.openThread = (data) => {
+            //         this.selectThread();
+            //     };
+            //     this.$bus.$on("openThread", this.openThread);
+            // }
+            var this_app = this;
+            if (this.threads.length==0){
+                axios.get(global.curdomain+'/api/threads/', {withCredentials:true})
+                    .then(function (response) {
+                        this_app.startThread = response.data.threadid;
+                        this_app.setThreads(response.data);
+                    });
             }
         },
         beforeDestroy: function() {
-            this.$bus.$off("openThread", this.openThread);
+            // this.$bus.$off("openThread", this.openThread);
         },
     }
 </script>

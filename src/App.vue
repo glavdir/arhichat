@@ -137,13 +137,13 @@
             var this_app = this;
 
             this_app.$store.commit('setLocal_opts',localStorage.getItem('local_opts'));
-            axios.get(global.curdomain+'/api/threads/', {withCredentials:true})
-                .then(function (response) {
-                    // console.log(response.data);
-                    this_app.$store.commit('setThreads',        response.data.threads);
-                    this_app.$store.commit('setLastThreadid',   response.data.threadid);
-                    this_app.$bus.$emit('openThread',{threadid:response.data.threadid})
-                });
+            // axios.get(global.curdomain+'/api/threads/', {withCredentials:true})
+            //     .then(function (response) {
+            //         // console.log(response.data);
+            //         this_app.$store.commit('setThreads',        response.data.threads);
+            //         this_app.$store.commit('setLastThreadid',   response.data.threadid);
+            //         this_app.$bus.$emit('openThread',{threadid:response.data.threadid})
+            //     });
 
             if (this.$store.state.curuserid == 0){
                 axios.get(global.curdomain+'/api/user_auth/', {withCredentials:true})
