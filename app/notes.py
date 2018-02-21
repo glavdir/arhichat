@@ -11,10 +11,19 @@ dmp = diff_match_patch.diff_match_patch()
 #     emit('delta',delta, include_self=False, room = session.get('room'))
 
 def get_notes_list():
-    noteslist = db.session.execute('SELECT id,title FROM notes WHERE private=0').fetchall()
-    notes = {}
+    order = redis.get('note_order_user_%s'%session['s_user'])
+
+    if not order:
+        order = '-1';
+
+    noteslist = db.session.execute("SELECT id,title FROM notes WHERE private=0 ORDER BY FIND_IN_SET(id,'"+order+"')").fetchall()
+    # notes = {}
+    # for note in noteslist:
+    #     notes['note_'+str(note.id)] ={'id':note.id, 'title':note.title, 'editing':False}
+
+    notes = []
     for note in noteslist:
-        notes['note_'+str(note.id)] ={'id':note.id, 'title':note.title, 'editing':False}
+        notes.append({'id':note.id, 'title':note.title, 'editing':False})
 
     return notes
 
@@ -34,6 +43,11 @@ def rename_note(data):
     note= models.notes.query.filter_by(id=data['id']).first()
     note.title = data['title']
     db.session.commit()
+    return ''
+
+@socketio.on('notes_order')
+def notes_order(data):
+    redis.set('note_order_user_%s'%session['s_user'], ','.join(data['order']))
     return ''
 
 @socketio.on('get_notes')

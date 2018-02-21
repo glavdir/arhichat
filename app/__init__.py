@@ -2,10 +2,10 @@ async_mode = 'gevent'
 message_queue = ''
 
 
-if async_mode == 'gevent':
-    from gevent import monkey
-    monkey.patch_all()
-    message_queue = 'redis://'
+# if async_mode == 'gevent':
+#     from gevent import monkey
+#     monkey.patch_all()
+#     message_queue = 'redis://'
 
 from flask import Flask
 from flask_sqlalchemy   import SQLAlchemy

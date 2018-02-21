@@ -259,8 +259,8 @@ export default {
         // }
 
         this.openThread = (data) => {
-            this.$store.commit('setLastThreadid',data.threadid);
-            this.setThreadByID(data.threadid);
+            // this.$store.commit('setLastThreadid',data.threadid);
+            // this.setThreadByID(data.threadid);
             this.setLastThread();
             if (this.threads.length!=0){
                 this.setThreadByID(data.threadid);

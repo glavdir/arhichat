@@ -10,6 +10,7 @@
     "build": "cross-env NODE_ENV=production webpack --progress --hide-modules"
   },
   "dependencies": {
+    "awe-dnd": "^0.3.1",
     "axios": "^0.17.1",
     "bp-vuejs-dropdown": "^2.1.1",
     "diff-match-patch": "^1.0.0",

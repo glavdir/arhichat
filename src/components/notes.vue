@@ -2,11 +2,13 @@
     <div class="notes_root">
         <div class="notes_tabs_nav">
             <button class="addTab bttn" @click="addTab" title="Добавить заметку">+</button><div class="notes_tabs">
-                <div class=""
+                <div
                      v-for="(tab, index) in tabs"
+                     :key="tab.id"
                      :class="[tab.id === curTab ? 'notes_tab notes_tab_active' : 'notes_tab']"
                      @click="tabActivate(tab)"
                      @dblclick.prevent="tabEdit(tab)"
+                     v-dragging="{ item: tab, list: tabs, group: 'notes' }"
                 >
                     <div v-if = '!tab.editing'>{{tabTitle(tab)}}</div>
                     <div class="notes_tab_editing" v-focus="tab.editing" v-if = 'tab.editing' contenteditable="true" @blur="tabEndChange(tab,$event)" @keydown.enter.prevent="tabEndChange(tab,$event)">{{tab.title}}</div>
@@ -32,10 +34,14 @@
 
     import editor from 'vue2-medium-editor';
 
+    import Vue from 'vue'
+    import VueDND from 'awe-dnd'
+    Vue.use(VueDND);
+
     export default {
         data: function () {
             return {
-                tabs: {},//{id:0,title:'Общие',editing:false}
+                tabs: [],//{id:0,title:'Общие',editing:false}
                 curTab:'',
                 noteText:''
             }
@@ -78,6 +84,13 @@
 
                 var diffs = dmp.patch_make(oldText,newText);
                 this.$socket.emit('note_diff',{id:this.curTab, diffs:dmp.patch_toText(diffs)});
+            },
+            saveNotesOrder(){
+                var order = [];
+                for (var ind in this.tabs){
+                    order.push(''+this.tabs[ind].id);
+                }
+                this.$socket.emit('notes_order',{order:order});
             }
         },
         computed:{
@@ -88,6 +101,11 @@
         },
         components: {
             'medium-editor':editor
+        },
+        mounted(){
+            this.$dragging.$on('dragend', () => {
+                this.saveNotesOrder();
+            })
         },
         created(){
             var this_app = this;
