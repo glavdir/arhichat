@@ -14,8 +14,8 @@
                      @dblclick.prevent="tabEdit(tab)"
                      v-dragging="{ item: tab, list: tabs, group: 'notes' }"
                 >
-                    <div v-if = '!tab.editing'>{{tabTitle(tab)}}</div>
-                    <div class="notes_tab_editing" v-focus="tab.editing" v-if = 'tab.editing' contenteditable="true" @blur="tabEndChange(tab,$event)" @keydown.enter.prevent="tabEndChange(tab,$event)">{{tab.title}}</div>
+                    <div class="notes_tab_label" v-if = '!tab.editing'>{{tabTitle(tab)}}</div>
+                    <div class="notes_tab_label notes_tab_editing" v-focus="tab.editing" v-if = 'tab.editing' contenteditable="true" @blur="tabEndChange(tab,$event)" @keydown.enter.prevent="tabEndChange(tab,$event)">{{tab.title}}</div>
                 </div>
             </div>
         </div>

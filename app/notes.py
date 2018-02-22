@@ -37,7 +37,7 @@ def add_note(data):
     note.title = 'Новая заметка'
     db.session.add(note)
     db.session.commit()
-    return {'id':note.id, 'title':note.title}
+    return {'id':note.id, 'title':note.title[0:31]}
 
 
 @socketio.on('rename_note')

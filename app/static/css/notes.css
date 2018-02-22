@@ -49,6 +49,7 @@
     direction: rtl;
     margin: 0;
     padding: 0;
+    padding-left: 4px;
 }
 
 .notes_tabs{
@@ -65,8 +66,8 @@
 .notes_tab{
     /* background: cornflowerblue; */
     display: inline-block;
-    height: 2rem;
-    line-height: 2rem;
+    min-height: 2rem;
+    /* line-height: 2rem; */
     /* margin-left: 0.25rem; */
     /* margin-right: 0.25rem; */
     box-sizing: border-box;
@@ -75,11 +76,12 @@
     overflow: hidden;
     width: 100%;
     text-align:  left;
-    vertical-align:  text-top;
+    vertical-align: middle;
     padding-left: 0.4rem;
     border-left: 2px solid transparent;
     outline:  none;
     direction:ltr;
+    display:  flex;
 }
 
 .notes_tab:hover{
@@ -104,6 +106,18 @@
 .notes_tab_editing{
     min-width: 4rem;
     outline: none;
+}
+
+.notes_tab_label{
+    min-width: 4rem;
+    outline: none;
+    /* height: 2rem; */
+    /* height: 100%; */
+    width: 100%;
+    vertical-align: middle;
+    display:table-cell;
+    padding-top: 0.35rem;
+    padding-bottom: 0.35rem;
 }
 
 .note_text{
