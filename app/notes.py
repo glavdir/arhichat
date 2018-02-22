@@ -16,7 +16,9 @@ def get_notes_list():
     if not order:
         order = '-1';
 
-    noteslist = db.session.execute("SELECT id,title FROM notes WHERE private=0 ORDER BY FIND_IN_SET(id,'"+order+"')").fetchall()
+    # print(order)
+
+    noteslist = db.session.execute("SELECT id,title FROM notes WHERE private=0 ORDER BY FIND_IN_SET(id,'"+order+"'), id").fetchall()
     # notes = {}
     # for note in noteslist:
     #     notes['note_'+str(note.id)] ={'id':note.id, 'title':note.title, 'editing':False}
@@ -44,6 +46,13 @@ def rename_note(data):
     note.title = data['title']
     db.session.commit()
     return ''
+
+@socketio.on('del_note')
+def rename_note(data):
+    note= models.notes.query.filter_by(id=data['id']).first()
+    db.session.delete(note)
+    db.session.commit()
+    return True
 
 @socketio.on('notes_order')
 def notes_order(data):

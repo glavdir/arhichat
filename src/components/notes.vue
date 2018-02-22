@@ -1,7 +1,11 @@
 <template>
     <div class="notes_root">
         <div class="notes_tabs_nav">
-            <button class="addTab bttn" @click="addTab" title="Добавить заметку">+</button><div class="notes_tabs">
+            <div class="notes_tabs_actions">
+                <button class="bttn icon-trash" @click="delTab" title="Удалить заметку"></button>
+                <span class="flex_splitter"></span>
+                <button class="bttn addTab" @click="addTab" title="Добавить заметку">+</button>
+            </div><div class="notes_tabs">
                 <div
                      v-for="(tab, index) in tabs"
                      :key="tab.id"
@@ -36,6 +40,7 @@
 
     import Vue from 'vue'
     import VueDND from 'awe-dnd'
+    import global from "../global";
     Vue.use(VueDND);
 
     export default {
@@ -53,11 +58,31 @@
             addTab() {
                 var this_app = this;
                 this.$socket.emit('add_note','',function (data) {
-                    console.log(data);
+                    // console.log(data);
                     var newTab = {id:data.id,title:data.title,editing:false};
-                    this_app.$set(this_app.tabs,'note_'+newTab.id, newTab);
+                    // this_app.$set(this_app.tabs,'note_'+newTab.id, newTab);
+                    this_app.tabs.unshift(newTab);
                     this_app.tabActivate(newTab);
                 });
+            },
+            delTab(){
+                if(this.curTab!='' && window.confirm('Удалить заметку?'))
+                {
+                    var this_app = this;
+                    this.$socket.emit('del_note', {id:this.curTab},
+                    function (result) {
+                        if (result) {
+                            var index = global.findObject(this_app.tabs,'id',this_app.curTab);
+                            this_app.tabs.splice(index,1);
+                            if (this_app.tabs.length>0){
+                                this_app.tabActivate(this_app.tabs[0]);
+                            }else{
+                                this_app.curTab='';
+                                this_app.noteText='';
+                            }
+                        }
+                     });
+                }
             },
             tabActivate(tab){
                 var this_app = this;
@@ -122,4 +147,5 @@
 </script>
 
 <style scoped>
+
 </style>

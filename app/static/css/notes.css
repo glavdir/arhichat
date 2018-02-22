@@ -26,6 +26,14 @@
     border-bottom: 2px solid transparent;
 }
 
+.notes_tabs_actions{
+    display: flex;
+}
+
+.flex_splitter{
+    flex: 1;
+}
+
 .notes_tabs_nav{
     border-right: 1px solid rgba(0,0,0,0.175);
     min-height: 2.5rem;

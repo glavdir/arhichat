@@ -36,7 +36,7 @@ def threads():
     threadlist = queries.get_threadlist(favorites=events_dialog.get_favorites())
     last_thread = events_dialog.get_last_thread()
 
-    if last_thread==0 and len(threadlist)>0:
+    if str(last_thread)=='0' and len(threadlist)>0:
         last_thread = threadlist[0]['threadid']
 
     result = {'threads': threadlist,
