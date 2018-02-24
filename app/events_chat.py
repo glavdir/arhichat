@@ -49,6 +49,10 @@ def get_activeusers():
 def get_messages(data):
     return json.dumps({'msgs': shouts.get_array_last_messages()})
 
+@socketio.on('load_messages')
+def load_messages(data):
+    return json.dumps({'msgs': queries.get_messages(session['s_user'],data['pmid'],data['sid'])})
+
 @socketio.on('chat_text')
 def text(message,chat_socket=''):
     msg = message['msg']

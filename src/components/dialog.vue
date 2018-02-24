@@ -149,10 +149,10 @@ export default {
         changeThread () {
             this.threadid = this.curThread.threadid;
             this.refreshThread();
-            this.setLastThread();
+            this.setLastThread(this.threadid);
         },
-        setLastThread(){
-            this.$socket.emit('set_last_thread', {threadid:this.threadid});
+        setLastThread(threadid){
+            this.$socket.emit('set_last_thread', {threadid:threadid});
         },
 
         changeFav(){
@@ -261,7 +261,7 @@ export default {
         this.openThread = (data) => {
             // this.$store.commit('setLastThreadid',data.threadid);
             // this.setThreadByID(data.threadid);
-            this.setLastThread();
+            this.setLastThread(data.threadid);
             if (this.threads.length!=0){
                 this.setThreadByID(data.threadid);
             }else {
@@ -275,7 +275,7 @@ export default {
     },
     created(){
         var this_app = this;
-        if (this.threads.length==0){
+        if (this.threads.length==0 || this.curThread.threadid==0){
             axios.get(global.curdomain+'/api/threads/', {withCredentials:true})
                 .then(function (response) {
                     if (this_app.startThread!=0){

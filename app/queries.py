@@ -73,7 +73,7 @@ def get_unread_pms(s_user):
     return redis.hgetall('pm_%s' % s_user)
 
 def get_active_users(s_user=0):
-    active_users = models.arhuser.query.filter(models.arhuser.lastactivity>time.time()-3600/2).all() #3600
+    active_users = models.arhuser.query.filter(models.arhuser.lastactivity>time.time()-3600000000/2).all() #3600/2
 
     for usrid in clients.values():
         if usrid and usrid!=0:
@@ -86,7 +86,7 @@ def get_active_users(s_user=0):
     usr_dbl = []
 
     for usr in active_users:
-        if not usr in usr_dbl:
+        if not usr in usr_dbl and usr.userid!=1:
             usr_dbl.append(usr)
             # is_unread = ('usr_%s' % usr.userid) in unread_pms
             try:
@@ -205,17 +205,28 @@ def get_messages_count(search_str=''):
 
     return res
 
-def get_private_messages(userid, pmid):
-    qfilter = or_(and_(models.arhinfernoshout.s_user==userid,models.arhinfernoshout.s_private==pmid),and_(models.arhinfernoshout.s_user==pmid,models.arhinfernoshout.s_private==userid))
-    shouts = models.arhinfernoshout.query.filter(qfilter).order_by(desc("sid"))[0:msgcount]
+def get_messages(userid, pmid, sid=0):
+    if pmid==-1:
+        qfilter = or_(models.arhinfernoshout.s_private == -1)
+    else:
+        qfilter = or_(and_(models.arhinfernoshout.s_user == userid, models.arhinfernoshout.s_private == pmid),
+                      and_(models.arhinfernoshout.s_user == pmid, models.arhinfernoshout.s_private == userid))
+
+    if sid!=0:
+        qfilter = and_(qfilter, models.arhinfernoshout.sid<sid)
+
+    query = models.arhinfernoshout.query
+
+    shouts = query.filter(qfilter).order_by(desc("sid")).limit(msgcount).all()#[0:msgcount]
     shouts.reverse()
+
     msgs = []
     for shout in shouts:
         msgs.append(msg(shout, False))
     return msgs
 
 def get_pm_by_mpid(userid, pmid):
-    return {'msgs': get_private_messages(userid,pmid)}
+    return {'msgs': get_messages(userid,pmid)}
 
 def find_shout_by_sid(sid):
     return models.arhinfernoshout.query.filter_by(sid=sid).first()

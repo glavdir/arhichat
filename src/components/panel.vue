@@ -65,16 +65,18 @@
 	            this.$store.commit('closePanel',{panel:this.panelName});
 	            this.updateURL();
 	            // this.$bus.$emit('panelResize');
-                this.$nextTick(function () {
-                    global.set_chat_users_width();
-                });            },
+                // this.$nextTick(function () {
+                 //    global.set_chat_users_width();
+                // });
+            },
             openPanel(){
 	            this.$store.commit('openPanel',{panel:this.altPanelName});
 	            this.updateURL();
 	            // this.$bus.$emit('panelResize');
-                this.$nextTick(function () {
-                    global.set_chat_users_width();
-                });            },
+                // this.$nextTick(function () {
+                 //    global.set_chat_users_width();
+                // });
+            },
         },
         mounted(){
             this.openThread = (data) => {

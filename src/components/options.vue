@@ -85,9 +85,9 @@ export default {
             // console.log(this.local_opts);
             localStorage.setItem('local_opts',JSON.stringify(this.local_opts));
             // this.$bus.$emit('panelResize');
-            this.$nextTick(function () {
-                global.set_chat_users_width();
-            });
+            // this.$nextTick(function () {
+            //     global.set_chat_users_width();
+            // });
         }
     },
     computed:{

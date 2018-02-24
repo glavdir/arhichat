@@ -1,6 +1,6 @@
 <template>
 <div class="chat_root">
-    <div class="chat_header header">
+    <div class="chat_header header ">
         <div class="chat_users">
             <!--:style="'width:'+users_width+'px'"-->
             <div class="activeusers">
@@ -38,6 +38,7 @@
                             <button class="bttn icon-cancel chat_edit_Cancel" title="Отмена" @click="editFinish"></button>
                         </div>
                     </div>
+                    <button class="addMessages" @click="loadMessages(channel)">Загрузить еще...</button>
                 </template>
             </div>
         </div>
@@ -64,7 +65,6 @@
         }
     });
 
-    window.onresize = global.set_chat_users_width;
     // var chat_app;
 
     export default {
@@ -99,9 +99,9 @@
             },
             activeusers: function(data) {
                 this.$store.commit('setUsers',data.slice());
-                this.$nextTick(function () {
-                    global.set_chat_users_width();
-                });
+                // this.$nextTick(function () {
+                //     global.set_chat_users_width();
+                // });
             },
             one_message:function(data) {
                 if (data.action=='new') {
@@ -220,23 +220,29 @@
                 this.curEditText = '';
             },
             shoutClick(event){
-                // console.log('!!!!');
                 if (event.target.className=='msglink'){
                    this.$store.commit('setPanel',{panel:'right',  param:'Dialog'});
-                    // this.$root.updateURL();
-                    // global.updateURL(this);
                     var threadid = event.target.dataset.dialog_id;
-
                     this.$nextTick(function () {
                         this.$bus.$emit('openThread', {threadid:threadid,panel:'right'});
                     });
                 }
             },
+            loadMessages(channel){
+                var this_app = this;
+                if (channel.messages.length>0){
+                    this.$socket.emit('load_messages', {pmid:this.curpmid, sid:channel.messages[channel.messages.length-1].sid}, function (cbk) {
+                        if (cbk){
+                            this_app.channels[channel.name].messages = channel.messages.concat(JSON.parse(cbk).msgs.reverse());
+                        }
+                    });
+                }
+            }
         },
         computed:{
         },
         mounted(){
-            global.set_chat_users_width();
+            // global.set_chat_users_width();
             // this.$bus.$on("panelResize", function(){
             //     setTimeout(set_chat_users_width,500)
             // });
@@ -258,4 +264,7 @@
 </script>
 
 <style>
+.chat_header  {
+  display:flex
+}
 </style>

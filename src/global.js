@@ -11,14 +11,5 @@ export default {
         }
         return -1;
     },
-
-    set_chat_users_width: function set_chat_users_width() {
-        var elems = document.querySelectorAll('.chat_users');
-        for (var i = 0; i < elems.length; i++ ){
-           var newWidth = elems[i].parentElement.clientWidth;
-           elems[i].setAttribute('style','max-width:'+newWidth+'px'); //'width:'+newWidth+'px;
-        }
-    },
-
     curdomain: 'http://' + document.domain + socketport
 }
