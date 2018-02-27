@@ -14,10 +14,19 @@ def emitlastmessages(pmid,room=''):
     if int(pmid)==-1:
         if room=='':
             room = session.get('room')
+
+        unreads = queries.get_unread_pms(session['s_user'])
+
         socketio.emit('messages',{'pmid':pmid,
                                   'msgs': shouts.get_array_last_messages(), #queries.get_last_messages(userid=-1),
-                                  'unreads':queries.get_unread_pms(session['s_user'])}
+                                  'unreads':unreads}
                       , room=room) #userid=session['s_user']
+
+# def get_offline_unread(unreads):
+#     res = []
+#     usr = queries.get_user_by_userid(4)
+#     res.append({'userid': str(usr.userid), 'userlook': queries.userlook(usr), 'online': False, 'unread': False})
+#     return res
 
 def emit_one_message(action,message):
     if message.s_private==-1:

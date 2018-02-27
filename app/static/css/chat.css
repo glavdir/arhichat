@@ -25,6 +25,10 @@
     float: left;
 }
 
+.tabOffline{
+    filter: grayscale(100%);
+}
+
 .unread{
     /* background: yellow; *//* color: red; *//* font-weight: bold; */
     /* border-bottom: 2px solid green; */
@@ -70,6 +74,8 @@
     /* width: 100%; */
     /* width: 150px; */
     width: max-content;
+    box-sizing:  border-box;
+    /* transform: scaleY(-1); */
 }
 
 @-moz-document url-prefix()
@@ -85,7 +91,7 @@
     /* flex-direction: column; */
     /* flex-wrap: nowrap; */
     /*max-height: 2.5rem;*/
-    /*height: 2.5rem;*/
+    height: 2.5rem;
     /*overflow-x: auto;*/
     /*overflow-y: hidden;*/
     /*position: absolute;*/
@@ -94,6 +100,9 @@
     width: 100px;
     flex: 1;
     overflow-x: auto;
+    overflow-y:  hidden;
+    box-sizing:  border-box;
+    /* transform: scaleY(-1); */
 }
 
 .chat_main{

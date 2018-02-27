@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import Global from './global.js';
+import global from './global.js';
+import axios from 'axios';
 
 Vue.use(Vuex);
 
@@ -63,16 +64,34 @@ const store = new Vuex.Store({
             }
         },
         setUsers(state, data) {
-            data.unshift({userid: -1, userlook: 'ЧАТ', unread: false});
-            for (var ind in data){
-                data[ind].unread = ('usr_'+ data[ind].userid) in state.unreads;
-                // this.$root.usersСache['usr_'+data[ind].userid] = data[ind].userlook;
+            data.unshift({userid: -1, userlook: 'ЧАТ', unread: false, online:true});
+
+            let onlines = [];
+
+            for (var ind in data) {
+                data[ind].unread = ('usr_' + data[ind].userid) in state.unreads;
+                onlines.push(data[ind].userid);
             }
+
             state.users = data;
+
+            let thisState = state;
+
+            let unreads = Object.keys(state.unreads).map(function (key) { return state.unreads[key]; });
+            let difference = unreads.filter(x => onlines.indexOf(x) == -1); //Вычисляем разницу между онлайн и непрочитанными ЛС
+
+            axios.get(global.curdomain + '/api/users/', {withCredentials: true, params: {userid:difference.join(',')}})
+                .then(function (response) {
+                    let userlist = response.data;
+                    for (let ind in userlist){
+                        thisState.users.push({userid: userlist[ind].userid, userlook: userlist[ind].userlook, unread: true, online:false})
+                    }
+                });
         },
+
         setUserAttr (state, data) {
             // console.log(data.value);
-            var ind = Global.findObject(state.users, 'userid', data.userid);
+            var ind = global.findObject(state.users, 'userid', data.userid);
             if (ind!=-1) {
                 state.users[ind][data.attr] = data.value;
                 Vue.set(state.users, ind, state.users[ind])
@@ -95,22 +114,12 @@ const store = new Vuex.Store({
         setTimezoneoffset(state, timezoneoffset) {
             state.timezoneoffset = timezoneoffset;
         },
-        // setThreads(state,threads){
-        //     state.threads = threads;
-        // },
         setLastThreadid(state,threadid){
             state.lastThreadid = threadid;
         }
     },
     computed: {
-        // curThread: {
-        //     get () {
-        //         return this.$store.state.dialogData.curThread;
-        //     },
-        //     set (value) {
-        //         this.$store.commit('setCurThread', value);
-        //     }
-        //   }
+
     }
 });
 

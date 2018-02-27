@@ -73,7 +73,7 @@ def get_unread_pms(s_user):
     return redis.hgetall('pm_%s' % s_user)
 
 def get_active_users(s_user=0):
-    active_users = models.arhuser.query.filter(models.arhuser.lastactivity>time.time()-3600000000/2).all() #3600/2
+    active_users = models.arhuser.query.filter(models.arhuser.lastactivity>time.time()-3600/2).all() #3600/2
 
     for usrid in clients.values():
         if usrid and usrid!=0:
@@ -86,13 +86,14 @@ def get_active_users(s_user=0):
     usr_dbl = []
 
     for usr in active_users:
-        if not usr in usr_dbl and usr.userid!=1:
-            usr_dbl.append(usr)
-            # is_unread = ('usr_%s' % usr.userid) in unread_pms
-            try:
-                res.append({'userid':str(usr.userid), 'userlook':userlook(usr),'online':True, 'unread':False})
-            except:
-                pass
+        if usr:
+            if not usr in usr_dbl and usr.userid!=1:
+                usr_dbl.append(usr)
+                # is_unread = ('usr_%s' % usr.userid) in unread_pms
+                try:
+                    res.append({'userid':str(usr.userid), 'userlook':userlook(usr),'online':True, 'unread':False})
+                except:
+                    pass
 
     return res
 

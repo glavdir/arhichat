@@ -107,6 +107,7 @@ export default {
     sockets:{
         connect() {
             var this_app = this;
+            this.loadThreads();
             this.$socket.emit('dialog_start', {threadid:this.threadid}, function (callback) {
                 this_app.refreshThread();
             });
@@ -251,6 +252,18 @@ export default {
             pst.pagetext = event.event.target.innerHTML;
             this.$socket.emit('dialog_change', {msg:event.event.target.innerText, id:pst.postid, color:pst.color});//, color:event.event.target.style.color
         },
+        loadThreads(){
+            var this_app = this;
+            if (this.threads.length==0 || this.curThread.threadid==0){
+                axios.get(global.curdomain+'/api/threads/', {withCredentials:true})
+                    .then(function (response) {
+                        if (this_app.startThread!=0){
+                            response.data.threadid = this_app.startThread;
+                        };
+                        this_app.setThreads(response.data);
+                    });
+            }
+        }
     },
     mounted(){
         // console.log(this.threadid);
@@ -274,16 +287,7 @@ export default {
         this.$bus.$off("openThread", this.openThread);
     },
     created(){
-        var this_app = this;
-        if (this.threads.length==0 || this.curThread.threadid==0){
-            axios.get(global.curdomain+'/api/threads/', {withCredentials:true})
-                .then(function (response) {
-                    if (this_app.startThread!=0){
-                        response.data.threadid = this_app.startThread;
-                    };
-                    this_app.setThreads(response.data);
-                });
-        }
+        this.loadThreads();
     },
 };
 

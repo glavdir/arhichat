@@ -6,7 +6,7 @@
             <div class="activeusers">
                 <div v-for="user in $store.state.users" :key="user.userid"
                              v-bind="{'data-pmid': user.userid}"
-                             v-bind:class="{tabUser:true, tabActive:user.userid==curpmid, unread: user.unread}"
+                             v-bind:class="{tabUser:true, tabActive:user.userid==curpmid, unread: user.unread, tabOffline:!user.online}"
                              v-html="user.userlook"
                              @click="tabOnClick(user.userid)">
 

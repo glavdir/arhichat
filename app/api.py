@@ -31,6 +31,17 @@ def user_auth():
         'opts': queries.get_options_by_userid(userid=session['s_user']),
         })
 
+@app.route('/api/users/')
+def users():
+    ids = request.args.get('userid')
+
+    res = []
+    if ids:
+        for userid in ids.split(','):
+            res.append({'userid':userid, 'userlook':queries.get_userlook_byid(userid)})
+
+    return json.dumps(res)
+
 @app.route('/api/threads/')
 def threads():
     threadlist = queries.get_threadlist(favorites=events_dialog.get_favorites())
