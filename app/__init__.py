@@ -47,5 +47,5 @@ socketio = SocketIO(app,
                     )
 
 
-from app import views, api, models, events_main, events_dialog, notes, events_character_edit
+from app import views, api, sql_characters, models, events_main, events_dialog, notes, events_character_edit
 

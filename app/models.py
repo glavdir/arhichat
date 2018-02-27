@@ -1,4 +1,6 @@
 from app import db
+from sqlalchemy.dialects.mysql import INTEGER
+from app import sql_characters
 import enum
 # ROLE_USER = 0
 # ROLE_ADMIN = 1
@@ -111,20 +113,35 @@ class notes(db.Model):
     text    = db.Column(db.Text,     index=False, unique=False)
 
 
-class pychat_characters(db.Model):
-    CharId          = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True)
-    Name            = db.Column(db.VARCHAR, index=False, unique=False)
-    Description     = db.Column(db.VARCHAR, index=False, unique=False)
-    Author          = db.Column(db.SmallInteger, index=False, unique=False)
-    Thread          = db.Column(db.Integer, index=False, unique=False)
-    TextStyle       = db.Column(db.VARCHAR, index=False, unique=False)
 
-# CREATE TABLE `pychat_characters` (
-#   `CharId` int(11) NOT NULL AUTO_INCREMENT,
-#   `Name` varchar(64) COLLATE utf8_unicode_ci NOT NULL,
-#   `Description` varchar(2048) COLLATE utf8_unicode_ci DEFAULT NULL,
-#   `Author` smallint(11) NOT NULL COMMENT 'Who created this character',
-#   `Thread` int(11) DEFAULT NULL COMMENT 'Null for neq characters',
-#   `TextStyle` varchar(1024) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'Text color, font, etc.',
-#   PRIMARY KEY (`CharId`)
-# ) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+class CharacterThreadData(db.Model):
+    __tablename__ = 'character_thread_data'
+    id              = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True, nullable=False)
+    character_id    = db.Column(INTEGER(unsigned=True), db.ForeignKey('characters.id'), primary_key=True, nullable=False)
+    thread_id       = db.Column(INTEGER(unsigned=True), primary_key=True, nullable=False) # cannot be foreign key because of database
+    note_id         = db.Column(INTEGER(unsigned=True), db.ForeignKey('notes.id'), nullable=True)
+    character_style = db.Column(db.Text(1024), index=False, unique=False)
+    __table_args__ = (
+        db.UniqueConstraint("character_id", "thread_id"),
+    )
+
+
+######################
+# Выполнить это вручную, остальное должно подняться само
+
+# CREATE TABLE `characters` (
+#   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+#   `name` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
+#   `description` varchar(5000) COLLATE utf8_unicode_ci DEFAULT NULL,
+#   `author` int(10) unsigned DEFAULT NULL,
+#   PRIMARY KEY (`id`),
+#   UNIQUE KEY `id` (`id`)
+# ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+# CREATE TABLE `tags` (
+#   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+#   `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,
+#   PRIMARY KEY (`id`),
+#   UNIQUE KEY `id` (`id`),
+#   UNIQUE KEY `name` (`name`)
+# ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
