@@ -4,7 +4,7 @@
         <fieldset class="frame">
             <legend>Поиск</legend>
             <div class="flex_container thickLine">
-                <span class="space_after v_center">Имя</span><input type="text" maxlength="64" v-model.lazy="charFilter"
+                <span class="space_after v_center">Имя</span><input type="text" maxlength="64" v-model="charFilter"
                                                                     class="flex_element input_field v_center"
                                                                     placeholder="Имя или его начало">
             </div>
@@ -12,9 +12,8 @@
                 <span class="space_after v_center">Тэги</span>
                 <tags-input class="flex_element v_center"
                             :fullTagList="allTags"
-                            v-model.lazy="tagsFilter"
+                            v-model="tagsFilter"
                             maxlength="64"
-                            @changed="()=>{console.log(changed)}"
                             placeholder="Тэги через пробел"/>
             </div>
             <!--<div class="flex_container thickLine">-->
@@ -120,7 +119,8 @@
                 for (var c in this.charList) {
                     var character = this.charList[c]
                     if (filterName && character.name.toLowerCase().includes(nameFilter.toLowerCase())) {
-                        filtered.push(character)
+                        if(!filtered.includes(character))
+                            filtered.push(character)
                         continue
                     }
                     if (filterTags) {
@@ -131,9 +131,9 @@
                                 suits = false;
                                 break;
                             }
-                            if (suits)
-                                filtered.push(character)
                         }
+                        if (suits && !filtered.includes(character))
+                            filtered.push(character)
                     }
                 }
                 return filtered;
