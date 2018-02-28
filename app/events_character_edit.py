@@ -8,7 +8,10 @@ import json
 def simple_character_list(characters):
     result = []
     for character in characters:
-        result.append({'name': character.name, 'id': character.id})
+        result.append(character.toDictShort())
+        # tags = character.tags
+        # tag_list = tags.toDict()
+        # result.append({'name': character.name, 'id': character.id, 'tags': character.tags.toDict()})
     return result
 
 
@@ -38,14 +41,10 @@ def get_character_info(id):
 def save_character(data):
     character = data['Character']
 
-    isNew = False
     if character['author'] is None:  # new character
         character['author'] = session['s_user']
-        isNew = True
-
 
     tags_count = sql_characters.count_values(sql_characters.Tags)
-    character_count = sql_characters.count_values(sql_characters.Characters)
 
     result_id = sql_characters.write_character(character)
 
@@ -55,6 +54,7 @@ def save_character(data):
     if result_id:
         return json.dumps(sql_characters.get_character(result_id))
     return None
+
 
 
 @socketio.on('delete_character')

@@ -2,9 +2,10 @@ from app import queries, db
 from sqlalchemy.dialects.mysql import INTEGER
 
 CharacterTags = db.Table('character_tags', db.Model.metadata,
-                          db.Column('tag_id', INTEGER(unsigned=True), db.ForeignKey('tags.id'), primary_key=True),
-                          db.Column('character_id', INTEGER(unsigned=True), db.ForeignKey('characters.id'), primary_key=True)
-                          )
+                         db.Column('tag_id', INTEGER(unsigned=True), db.ForeignKey('tags.id'), primary_key=True),
+                         db.Column('character_id', INTEGER(unsigned=True), db.ForeignKey('characters.id'),
+                                   primary_key=True)
+                         )
 
 
 class Tags(db.Model):
@@ -29,6 +30,13 @@ class Characters(db.Model):
         for t in self.tags:
             tags.append(t.name)
         d = {'id': self.id, 'name': self.name, 'description': self.description, 'author': self.author, 'tags': tags}
+        return d
+
+    def toDictShort(self):
+        tags = []
+        for t in self.tags:
+            tags.append(t.name)
+        d = {'id': self.id, 'name': self.name, 'tags': tags}
         return d
 
     def fromDict(self, data):
@@ -82,9 +90,10 @@ def get_character(character_id):
     return result
 
 
-def get_character_list():
+
+def get_character_list_with_tags():
     query = Characters.query.with_entities(Characters.name,
-                                           Characters.id)
+                                           Characters.id, Characters.tags)
     result = query.all()
     return result
 
@@ -141,7 +150,9 @@ def find_characters(filters):
 
     return db.session.query(Characters).filter(*filter_array).all()
 
+
 def count_values(model):
     return db.session.execute( db.session.query(model).statement.with_only_columns([db.func.count()]).order_by(None)).scalar()
+
 
 

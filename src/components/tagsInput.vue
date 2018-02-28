@@ -10,18 +10,18 @@
             outTags: Array,
             fullTagList: Array
         },
-        components:{
+        components: {
             ClickOutside
         },
         data: function () {
             return {
-//                inputText: '',
                 listVisible: false,
-                listFilter: ''
+                listFilter: '',
+                focusedItem: null
             }
         },
         computed: {
-            tags_filtered: function () {
+            tagsFiltered: function () {
                 if (this.inputText == 0) {
                     return this.fullTagList
                 }
@@ -38,23 +38,70 @@
                     return this.outTags.join(' ')
                 },
                 set: function (tags_string) {
-                    var tags = this.validate_string(tags_string).split(' ')
+                    var tags = this.validateString(tags_string).split(' ')
                     this.$emit('input', tags)
                 }
             }
         },
         methods: {
-            setSelectorVisible: function (show) {
-                this.listVisible = show
-                if (!show)
-                    this.listFilter = ""
+//            sendChangeEvent: function(){
+//                var tags = this.validateString(this.inputText).split(' ')
+//                this.$emit('change', tags)
+//            },
+            processArrowKeyDown() {
+                if (!this.listVisible) {
+                    this.setSelectorVisible(true)
+                    return;
+                }
+                if (this.focusedItem == this.$refs.search_input) {
+                    this.focusedItem = this.$refs.list.firstElementChild
+                }
+                else {
+                    this.focusedItem = this.focusedItem.nextElementSibling
+                    if (!this.focusedItem)
+                        this.focusedItem = this.$refs.list.firstElementChild
+                }
+                if (this.focusedItem)
+                    this.focusedItem.focus()
             },
-            validate_string: function (tags_string) {
+            processArrowKeyUp() {
+                if (!this.listVisible) {
+                    this.setSelectorVisible(true)
+                    return;
+                }
+                if (this.focusedItem == this.$refs.search_input) {
+                    this.focusedItem = this.$refs.list.lastElementChild
+                }
+                else {
+                    this.focusedItem = this.focusedItem.previousElementSibling
+                    if (!this.focusedItem)
+                        this.focusedItem = this.$refs.list.lastElementChild
+                }
+                if (this.focusedItem)
+                    this.focusedItem.focus()
+            },
+            setSelectorVisible: function (show, focusInput) {
+                this.listVisible = show
+                if (!show) {
+                    this.listFilter = ""
+                    if (focusInput) {
+                        this.$refs.tags_input.focus()
+                    }
+
+                }
+                else {
+                    this.$nextTick(() => {
+                        this.$refs.search_input.focus();
+                        this.focusedItem = this.$refs.search_input;
+                    })
+                }
+            },
+            validateString: function (tags_string) {
                 var str = tags_string.toLowerCase().replace(/\s+/g, ' ').replace(/[^\s0-9a-zA-Zа-яА-Я_]+/, '')
                 return str
             },
             addTagToOut(tag) {
-                this.setSelectorVisible(false)
+                this.setSelectorVisible(false, true)
                 if (!this.outTags.includes(tag))
                     this.outTags.push(tag)
             },
@@ -67,9 +114,12 @@
 
 <template>
     <click-outside :handler="handleClickOutside">
-        <div @keydown.esc="setSelectorVisible(false)" class="tags">
+        <div @keydown.esc="setSelectorVisible(false, true)" class="tags"
+             @keydown.down="processArrowKeyDown()" @keydown.up="processArrowKeyUp()"
+       >
             <input type="text" ref="tags_input" placeholder="Тэги через пробел"
-                   @keydown.down="setSelectorVisible(true)" class="tags_input" v-model="inputText">
+                   class="tags_input" v-model="inputText" >
+             <!--@change="sendChangeEvent"-->
 
             <button @click="setSelectorVisible(!listVisible)" class="tags_select_button"
                     title="Добавить тэг из списка существующих.
@@ -77,9 +127,13 @@
             </button>
 
             <div ref="tag_list" class="tags_list_frame" v-if="listVisible">
-                <input type="text" v-model="listFilter" placeholder=" Поиск" class="tags_select_search">
-                <ul>
-                    <li v-for="tag in tags_filtered" @click="addTagToOut(tag)" class="tags_select_li">{{ tag }}</li>
+                <input ref="search_input" type="text" v-model="listFilter" placeholder=" Поиск"
+                       tabindex="0" class="tags_select_search">
+                <ul ref="list" tabindex="1">
+                    <li v-for="(tag, index) in tagsFiltered" @click="addTagToOut(tag)"
+                        :tabindex="index + 1" class="tags_select_li" @keydown.enter="addTagToOut(tag)">
+                        {{ tag }}
+                    </li>
                 </ul>
             </div>
         </div>
@@ -109,9 +163,9 @@
         flex-grow: 0;
     }
 
-     .tags_select_button:hover {
-         background-color: white;
-     }
+    .tags_select_button:hover {
+        background-color: white;
+    }
 
     .tags_list_frame {
         position: absolute;
@@ -140,13 +194,14 @@
         background-color: #CFE7F0;
     }
 
-    .tags_select_search
-    {
+    .tags_list_frame li:focus {
+        background-color: #CFE7F0;
+    }
+
+    .tags_select_search {
         border: none;
         border-bottom: 1px solid lightgray;
     }
-
-
 
 
 </style>

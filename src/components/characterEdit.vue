@@ -4,25 +4,26 @@
         <fieldset class="frame">
             <legend>Поиск</legend>
             <div class="flex_container thickLine">
-                <span class="space_after v_center">Имя</span><input type="text" maxlength="64" v-model="charFilter"
-                                                                     class="flex_element input_field v_center"
-                                                                     placeholder="Имя или его начало">
+                <span class="space_after v_center">Имя</span><input type="text" maxlength="64" v-model.lazy="charFilter"
+                                                                    class="flex_element input_field v_center"
+                                                                    placeholder="Имя или его начало">
             </div>
             <div class="flex_container thickLine">
                 <span class="space_after v_center">Тэги</span>
                 <tags-input class="flex_element v_center"
                             :fullTagList="allTags"
-                            v-model="tagsFilter"
+                            v-model.lazy="tagsFilter"
                             maxlength="64"
+                            @changed="()=>{console.log(changed)}"
                             placeholder="Тэги через пробел"/>
             </div>
-            <div class="flex_container thickLine">
-                <div class="flex_element"></div>
-                <button @click="find_characters">Найти</button>
-            </div>
+            <!--<div class="flex_container thickLine">-->
+                <!--<div class="flex_element"></div>-->
+                <!--<button @click="find_characters">Найти</button>-->
+            <!--</div>-->
             <select ref="charSelect" v-model="currentChar" @change="selectCharacter" size="5"
                     class="full_width thickLine">
-                <option v-for="ch in charList" v-bind:value="ch.id">{{ ch.name }}</option>
+                <option v-for="ch in filteredCharacters" v-bind:value="ch.id">{{ ch.name }}</option>
             </select>
         </fieldset>
         <fieldset class="frame">
@@ -48,7 +49,7 @@
                             placeholder="Тэги через пробел"/>
             </div>
             <div v-if="editData.author" class="thickLine">
-                <span >Автор:</span>
+                <span>Автор:</span>
                 <span class="display_frame ">{{ editData.author_name }}</span>
             </div>
             <div class="flex_container thickLine">
@@ -95,36 +96,70 @@
                 tagsFilter: [],
                 tagPattern: "[\\s0-9a-zA-Zа-яА-Я_]+",
                 editData: editDataDefault(),
-                allTags: [],
-                quentasOnly: false
+                allTags: []
             }
         },
         created() {
             var this_app = this;
+            this.$socket.emit('find_characters');
             this.$socket.emit('get_tags');
         },
+        computed: {
+            filteredCharacters: function () {
+
+                var tFilter = this.remove_empty_elements(this.tagsFilter)
+                var nameFilter = this.charFilter.trim()
+                var filterName = nameFilter.length > 0
+                var filterTags = tFilter.length > 0
+
+                if (!filterName && !filterTags) {
+                    return this.charList;
+                }
+
+                var filtered = []
+                for (var c in this.charList) {
+                    var character = this.charList[c]
+                    if (filterName && character.name.toLowerCase().includes(nameFilter.toLowerCase())) {
+                        filtered.push(character)
+                        continue
+                    }
+                    if (filterTags) {
+                        var suits = true
+
+                        for (var tag in tFilter) {
+                            if (!character.tags.includes(tFilter[tag])) {
+                                suits = false;
+                                break;
+                            }
+                            if (suits)
+                                filtered.push(character)
+                        }
+                    }
+                }
+                return filtered;
+            }
+        },
+
         methods: {
             remove_empty_elements: function (stringlist) {
-                var pos = 0
-                while (pos < stringlist.length) {
-                    if (stringlist[pos] == '')
-                        stringlist.splice(pos, 1)
-                    else
-                        pos += 1
+                var newList = []
+                for(var s in stringlist){
+                    if (stringlist[s] != '')
+                        newList.push(stringlist[s])
                 }
-                return stringlist
+                return newList
             },
             find_characters: function () {
                 var filters = {
                     name: this.charFilter,
-                    tags: this.remove_empty_elements(this.tagsFilter),
-                    quentasOnly: this.quentasOnly
+                    tags: this.remove_empty_elements(this.tagsFilter)
                 }
                 this.$socket.emit('find_characters', filters);
             },
             setCharacterList: function (data) {
                 var lastCharId = this.currentChar;
                 this.charList = data;
+
                 if (lastCharId) {
                     for (var i in this.charList) {
                         if (this.charList[i].id == lastCharId) {
@@ -134,7 +169,38 @@
                     }
                 }
             },
-
+//            filter_characters: function()
+//            {
+//                var filterName = this.charFilter.length > 0
+//                var filterTags = this.tagsFilter.length > 0
+//
+//                if(!filterName && !filterTags) {
+//                    return this.charList;
+//                }
+//
+//                var filtered = []
+//                for(var character in this.charList)
+//                {
+//                    if(filterName && character.includes(this.charFilter)){
+//                        filtered.push(character)
+//                        continue
+//                    }
+//                    if(filterTags)
+//                    {
+//                        var suits = true
+//                        for(var tag in this.tagsFilter)
+//                        {
+//                            if(!character.tags.includes(tag)){
+//                                suits = false;
+//                                break;
+//                            }
+//                            if(suits)
+//                                filtered.push(character)
+//                        }
+//                    }
+//                }
+//                return filtered;
+//            },
             selectCharacter: function () {
                 if (!this.currentChar || this.currentChar.length == 0) {
                     this.editData = editDataDefault()
@@ -169,14 +235,14 @@
                 var this_app = this;
                 this.$socket.emit('save_character', {'Character': this.editData}, function (result) {
 
-                                if (result) {
-                                    alert('Персонаж "' + name + '" успешно сохранен');
-                                    this_app.find_characters();
-                                    this_app.setCharacterData(JSON.parse(result));
-                                }
-                                else
-                                    alert('Упс! Не получилось создать персонажа "' + name + '"');
-                            })
+                    if (result) {
+                        alert('Персонаж "' + name + '" успешно сохранен');
+                        this_app.find_characters();
+                        this_app.setCharacterData(JSON.parse(result));
+                    }
+                    else
+                        alert('Упс! Не получилось создать персонажа "' + name + '"');
+                })
             },
             deleteCharacter: function () {
                 if (!this.currentChar) {
@@ -191,7 +257,7 @@
                         var this_app = this
                         this.$socket.emit('delete_character', {'Character': this.currentChar},
                             function (result) {
-                            console.log(result)
+                                console.log(result)
                                 if (result) {
                                     alert('Персонаж "' + currentCharText + '" удалён');
                                     this_app.resetEditData();
@@ -208,6 +274,7 @@
             character_list(data) {
                 this.setCharacterList(JSON.parse(data))
             },
+
             character_tags(data) {
                 this.allTags = JSON.parse(data)
             }
@@ -254,15 +321,14 @@
         margin: 0.3em 0 0.3em 0;
     }
 
-    .v_center
-    {
+    .v_center {
         margin: auto;
     }
 
 </style>
 
 <style>
-    .characterEdit_root input[type="text"]{
+    .characterEdit_root input[type="text"] {
         padding: 0 0.1em;
     }
 </style>
