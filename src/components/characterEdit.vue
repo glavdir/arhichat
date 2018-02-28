@@ -17,11 +17,6 @@
                             placeholder="Тэги через пробел"/>
             </div>
             <div class="flex_container thickLine">
-                <div class="flex_container">
-                    <input type="checkbox" v-model="quentasOnly" class="v_center">
-                    <div class=" space_after"></div>
-                    <span class="v_center">Только квенты</span>
-                </div>
                 <div class="flex_element"></div>
                 <button @click="find_characters">Найти</button>
             </div>
