@@ -49,3 +49,5 @@ socketio = SocketIO(app,
 
 from app import views, api, sql_characters, models, events_main, events_dialog, notes, events_character_edit
 
+db.create_all()
+db.session.commit()
