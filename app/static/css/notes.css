@@ -28,6 +28,8 @@
 
 .notes_tabs_actions{
     display: flex;
+    height: 2.5rem;
+    /* position:  absolute; */
 }
 
 .flex_splitter{
@@ -46,11 +48,11 @@
     /* height: 100%; */
     flex: 1;
     overflow-y: auto;
-    background: rgba(0,0,0,0.05);
+    background: rgba(158, 163, 176, 0.1);
     direction: rtl;
     margin: 0;
     padding: 0;
-    padding-left: 4px;
+    /* padding-left: 4px; */
 }
 
 .notes_tabs{
@@ -72,7 +74,7 @@
     /* margin-left: 0.25rem; */
     /* margin-right: 0.25rem; */
     box-sizing: border-box;
-    color: rgba(0,0,0,0.175);
+    color: #444;
     cursor: pointer;
     overflow: hidden;
     width: 100%;
@@ -89,6 +91,7 @@
 
 .notes_tab:hover{
     color: #444;
+    background: rgba(1, 1, 1, 0.05);
 }
 
 .notes_tab_active{
@@ -96,12 +99,14 @@
     color: #444;
     cursor: default;
     background:  white;
-    /* padding-left: 0.4rem; */
-    border-bottom, border-top: 1px solid lightgray;
-    /* border-bottom:  1px solid lightgray; */
-    /* border-top: 1px solid lightgray; */
     box-sizing:  border-box;
 }
+
+.notes_tab_active:hover{
+    background:  white;
+}
+
+
 
 /*.notes_tab_active:after{*/
     /*border: 20px solid transparent;	border-right: 20px solid green;*/

@@ -8,6 +8,9 @@ from app import shouts
 import datetime
 
 expire_date = datetime.datetime.now() + datetime.timedelta(days=365 * 10)
+# @app.route('/.well-known/acme-challenge/<string:filename>')
+# def cert(filename):
+#     return send_file('static/'+filename)
 
 @app.route('/alert')
 def alert():

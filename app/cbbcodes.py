@@ -38,4 +38,5 @@ def render_dialog(name, value, options, parent, context):
         return value
 
 def render_color(name, value, options, parent, context):
-    return '<div class="colorpost" style="color:%s;">%s</div>' % (options['color'], value)
+    # return '<div class="colorpost" style="color:%s;">%s</div>' % (options['color'], value)
+    return '<font color="%s">%s</font>' % (options['color'], value)

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from app import app, queries, events_dialog, notes, shouts
+from app import app, queries, sql_posts, events_dialog, notes, shouts
 from flask import session, request, json
 from app import revision
 
@@ -120,7 +120,7 @@ def posts_archive():
 
     mstart  = count*(page - 1)
 
-    result = queries.get_posts(threads=threads, mstart=mstart, count=count, search=search)
+    result = sql_posts.get_posts(threads=threads, mstart=mstart, count=count, search=search)
 
     result['page_count'] = get_page_by_number(result['posts_count'],count)
 

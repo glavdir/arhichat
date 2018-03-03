@@ -78,7 +78,10 @@ const store = new Vuex.Store({
             let thisState = state;
 
             let unreads = Object.keys(state.unreads).map(function (key) { return state.unreads[key]; });
-            let difference = unreads.filter(x => onlines.indexOf(x) == -1); //Вычисляем разницу между онлайн и непрочитанными ЛС
+            let difference = unreads.filter(x => onlines.indexOf(x) == -1 && x!=true); //Вычисляем разницу между онлайн и непрочитанными ЛС
+
+            // console.log(unreads);
+            // console.log(difference);
 
             axios.get(global.curdomain + '/api/users/', {withCredentials: true, params: {userid:difference.join(',')}})
                 .then(function (response) {

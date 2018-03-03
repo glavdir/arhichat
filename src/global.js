@@ -11,5 +11,8 @@ export default {
         }
         return -1;
     },
-    curdomain: 'http://' + document.domain + socketport
+    curdomain: 'http://' + document.domain + socketport,
+    nl2br (str){
+        return str.replace(/([^>])\n/g, '$1<br/>');
+    }
 }

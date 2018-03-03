@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from app import models
 from app import msgcount
-from app import parser,post_parser
+from app import parser
 from app import clients
 from app import redis
 from app import db
@@ -97,17 +97,6 @@ def get_username_byid(userid):
         return get_user_by_userid(userid).username
     else:
         return 'anonimous'
-
-def get_user_settings_by_userid(userid):
-    settings = models.dialogs_users.query.get(userid)
-
-    if not settings:
-        settings = models.dialogs_users()
-        settings.userid = userid
-        db.session.add(settings)
-        db.session.commit()
-
-    return settings
 
 def get_adminpermissions(userid):
     user = models.arhuser.query.get(userid)
@@ -217,27 +206,6 @@ def find_thread_by_postid(postid):
 def get_message_by_sid(sid,original):
     return True, msg(find_shout_by_sid(sid), original)
 
-def get_replies(dialog_id, is_archive):
-    list = models.dialogs.query.filter_by(dialog_id=dialog_id, archive=is_archive).order_by("id").all()
-    return list
-
-def get_dialog_replies(dialog_id):
-    replies = get_replies(dialog_id, False)
-    rep = []
-    for reply in replies:
-        rep.append({'msg':parser.format(reply.reply),'color':reply.color,'id':reply.id}) #)
-    return rep
-
-def get_text_replies(dialog_id):
-    dialog_text = ''
-    replies = get_replies(dialog_id, False)
-    for reply in replies:
-        if dialog_text:
-            dialog_text = dialog_text+'\n'
-        dialog_text=dialog_text+u'[color="%s"]%s[/color]'%(reply.color,reply.reply)
-
-    return dialog_text
-
 def get_thread_title(dialog_id):
     thread_title = ''
     thread = models.arhthread.query.filter_by(threadid=dialog_id).first()
@@ -269,44 +237,6 @@ def get_threadlist(favorites=[]):
         threads.append({'threadid':thread.threadid, 'title':thread.title, 'isFav':thread.isFav!=0})
 
     return threads
-
-def get_lastposts(threadid, numposts=10):
-    lastposts = models.arhpost.query.filter_by(threadid=threadid).order_by(desc("postid")).limit(numposts).all()
-
-    resPosts=[]
-    for post in reversed(lastposts):
-        pagetext = post_parser.format(post.pagetext)
-        resPosts.append({'time':post.dateline,'userid':post.userid, 'postid':post.postid,'pagetext':pagetext, 'color':post.color})
-
-    return resPosts
-
-def get_posts(threads, mstart=0, count=25, search=''):
-    qstring = 'SELECT ' \
-              ' post.dateline,' \
-              ' post.postid,' \
-              ' post.threadid,' \
-              ' post.userid,' \
-              ' post.pagetext ' \
-              'FROM arhpost post ' \
-              'WHERE threadid in('+threads+') and post.pagetext like "%'+search+'%"' \
-              'ORDER BY postid ' \
-              'LIMIT '+str(mstart)+','+str(count)+''
-
-    #WHERE s_shout like "%'+ search_str +'%"'
-    # print(threads, str(mstart), str(count))
-    lastposts = db.session.execute(qstring).fetchall()
-    resPosts=[]
-    for post in reversed(lastposts):
-        resPosts.append({'time':post.dateline,'userid':post.userid, 'postid':post.postid,'pagetext':post_parser.format(post.pagetext)})
-
-    qstring = 'SELECT COUNT(post.postid) AS posts_count FROM arhpost post WHERE threadid in('+threads+') and post.pagetext like "%'+search+'%"'
-    posts_count = db.session.execute(qstring).first().posts_count
-
-    return {'posts':resPosts,'posts_count':posts_count}
-
-
-def get_replies_count(dialog_id):
-     return db.session.execute('select count(id) as replies_count from dialogs where (dialog_id = %s and archive = 0)' % (dialog_id)).first().replies_count
 
 def get_sid_number(sid):
      return db.session.execute('SELECT SUM(s_private = "-1" and sid<=%s) Count FROM arhinfernoshout' % (sid)).first().Count

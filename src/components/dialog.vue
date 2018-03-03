@@ -1,6 +1,6 @@
 <template>
 <div class="dialog_root">
-    <div id='dialog_header' class="dialog_header header">
+    <div class="dialog_header header">
         <div class="dialog_thread"><!--
             --><div class="dialog_thread_select">
                 <multiselect
@@ -131,7 +131,7 @@ export default {
     },
     methods: {
         nl2br:function(str){
-            return str.replace(/([^>])\n/g, '$1<br/>');
+            return global.nl2br;// str.replace(/([^>])\n/g, '$1<br/>');
         },
         setThreads(data){
             this.threads = data.threads;

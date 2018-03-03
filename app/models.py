@@ -49,24 +49,6 @@ class arhthread(db.Model):
     forumid      = db.Column(db.SmallInteger, primary_key = False)
     title        = db.Column(db.String(100), index = False, unique = False)
 
-class arhpost(db.Model):
-    postid       = db.Column(db.SmallInteger, primary_key = True)
-    threadid     = db.Column(db.SmallInteger, primary_key = False)
-    pagetext     = db.Column(db.Text, index = False, unique = False)
-    userid       = db.Column(db.Integer)
-    dateline     = db.Column(db.Integer)
-    color        = db.Column(db.CHAR(16), index=False, unique=False)
-
-    allowsmilie = db.Column(db.SmallInteger, primary_key=False)
-    showsignature = db.Column(db.SmallInteger, primary_key=False)
-    visible = db.Column(db.SmallInteger, primary_key=False)
-
-
-class arhpostparsed(db.Model):
-    postid        = db.Column(db.SmallInteger, primary_key = True)
-    pagetext_html = db.Column(db.Text, index = False, unique = False)
-    dateline      = db.Column(db.Integer)
-
 class arhinfernoshoutusers(db.Model):
     s_user  = db.Column(db.SmallInteger, db.ForeignKey('arhuser.userid'), primary_key=True)
     s_color = db.Column(db.String(32), index =False, unique =False)
@@ -81,19 +63,19 @@ class arhinfernoshout(db.Model):
     s_private   = db.Column(db.SmallInteger, index=True, unique=False)
     dialog_id   = db.Column(db.CHAR(16),     index=True, unique=False)
 
-class dialogs(db.Model):
-    id          = db.Column(db.Integer, primary_key = True)
-    dialog_id   = db.Column(db.CHAR(16), index=True, unique=False)
-    color       = db.Column(db.CHAR(16), index=False, unique=False)
-    reply       = db.Column(db.Text,     index=False, unique=False)
-    archive     = db.Column(db.Boolean,  index=True, unique=False)
-
-class dialogs_users(db.Model):
-    userid           = db.Column(db.Integer, primary_key = True)
-    last_dialog_id   = db.Column(db.CHAR(16),   index=True,  unique=False)
-    last_color       = db.Column(db.CHAR(16),   index=False, unique=False)
-    dialogs_colors   = db.Column(db.Text,       index=False, unique=False)
-    favorites        = db.Column(db.Text,       index=False, unique=False)
+# class dialogs(db.Model):
+#     id          = db.Column(db.Integer, primary_key = True)
+#     dialog_id   = db.Column(db.CHAR(16), index=True, unique=False)
+#     color       = db.Column(db.CHAR(16), index=False, unique=False)
+#     reply       = db.Column(db.Text,     index=False, unique=False)
+#     archive     = db.Column(db.Boolean,  index=True, unique=False)
+#
+# class dialogs_users(db.Model):
+#     userid           = db.Column(db.Integer, primary_key = True)
+#     last_dialog_id   = db.Column(db.CHAR(16),   index=True,  unique=False)
+#     last_color       = db.Column(db.CHAR(16),   index=False, unique=False)
+#     dialogs_colors   = db.Column(db.Text,       index=False, unique=False)
+#     favorites        = db.Column(db.Text,       index=False, unique=False)
 
 
 # CREATE TABLE IF NOT EXISTS notes (
@@ -114,21 +96,21 @@ class notes(db.Model):
 
 
 
-class CharacterThreadData(db.Model):
-    __tablename__ = 'character_thread_data'
-    id              = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True, nullable=False)
-    character_id    = db.Column(INTEGER(unsigned=True), db.ForeignKey('characters.id'), primary_key=True, nullable=False)
-    thread_id       = db.Column(INTEGER(unsigned=True), primary_key=True, nullable=False) # cannot be foreign key because of database
-    note_id         = db.Column(INTEGER(unsigned=True), db.ForeignKey('notes.id'), nullable=True)
-    character_style = db.Column(db.Text(1024), index=False, unique=False)
-    __table_args__ = (
-        db.UniqueConstraint("character_id", "thread_id"),
-    )
+# class CharacterThreadData(db.Model):
+#     __tablename__ = 'character_thread_data'
+#     id              = db.Column(db.Integer, primary_key=True, unique=True, autoincrement=True, nullable=False)
+#     character_id    = db.Column(INTEGER(unsigned=True), db.ForeignKey('characters.id'), primary_key=True, nullable=False)
+#     thread_id       = db.Column(INTEGER(unsigned=True), primary_key=True, nullable=False) # cannot be foreign key because of database
+#     note_id         = db.Column(INTEGER(unsigned=True), db.ForeignKey('notes.id'), nullable=True)
+#     character_style = db.Column(db.Text(1024), index=False, unique=False)
+#     __table_args__ = (
+#         db.UniqueConstraint("character_id", "thread_id"),
+#     )
 
 
 ######################
 # Выполнить это вручную, остальное должно подняться само
-
+#
 # CREATE TABLE `characters` (
 #   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 #   `name` varchar(64) COLLATE utf8_unicode_ci DEFAULT NULL,
@@ -137,7 +119,7 @@ class CharacterThreadData(db.Model):
 #   PRIMARY KEY (`id`),
 #   UNIQUE KEY `id` (`id`)
 # ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
+#
 # CREATE TABLE `tags` (
 #   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
 #   `name` varchar(50) COLLATE utf8_unicode_ci NOT NULL,

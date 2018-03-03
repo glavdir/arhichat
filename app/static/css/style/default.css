@@ -10,6 +10,7 @@ body{
 
 .header{
     background:rgba(158, 163, 176, 0.1);
+    border-bottom:  1px solid #eaeaea;
 }
 
 .msg{

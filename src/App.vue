@@ -3,7 +3,9 @@
         <arh-panel v-if="isLeftPanel" ref="leftPanel" class="leftPanel"  :panel="leftPanel" :panelName="'left'" :altPanelName="'right'" :panels="panels"  :isAltPanel="isRightPanel" :style="leftSize">
              <kong v-if="isSplitter || isLeftPanel" slot="kong"></kong>
         </arh-panel>
-        <div v-if="isSplitter" class="splitter"></div>
+        <div v-if="isSplitter" class="splitter">
+            <div class="splitterHeader"></div>
+        </div>
         <arh-panel v-if="isRightPanel" ref="rightPanel" class="rightPanel" :panel="rightPanel" :panelName="'right'" :altPanelName="'left'" :panels="panels" :isAltPanel="isLeftPanel" :style="rightSize">
             <kong  v-if="!isSplitter" slot="kong"></kong>
         </arh-panel>
@@ -12,6 +14,7 @@
         <div v-html="opts_show_img"></div>
         <div v-html="opts_style"></div>
         <div v-html="opts_font_size"></div>
+        <flash-message transitionIn="animated swing" class="flash-message-pool"></flash-message>
     </div>
 </template>
 
@@ -28,17 +31,20 @@
     import Notes from './components/notes';
     import DialogArchive from './components/dialog-archive';
     import CharEdit from './components/characterEdit.vue';
+    import Arhibash from './components/arhibash.vue';
 
     import VueRouter from 'vue-router';
     Vue.use(VueRouter);
 
     import VueSocketio from 'vue-socket.io';
     import io from 'socket.io-client'
-
     var socket = io.connect(global.curdomain, {reconnection: true, transports: [window.transport], timeout:30000});
     Vue.use(VueSocketio, socket);
     Object.defineProperty(Vue.prototype,"$bus",{get:function(){return this.$root.bus;}}); //Шина событий для обмена между компонентами
 
+    import VueFlashMessage from 'vue-flash-message';
+    Vue.use(VueFlashMessage);
+    import 'vue-flash-message/dist/vue-flash-message.min.css';
 
     const router = new VueRouter({
         mode: 'history',
@@ -46,13 +52,14 @@
     });
 
     var panels = {
-        Chat:    {title:'Чат',          component:Chat},
-        Dialog:  {title:'Игра',         component:Dialog},
-        Notes:   {title:'Заметки',      component:Notes},
-        Archive: {title:'Архив чата',   component:Archive},
-        Options: {title:'Настройки',    component:Options},
-        DialogArchive:{title:'Архив игры', component:DialogArchive},
-        CharEdit:{name:'CharEdit',title:'Персонажи',component:CharEdit},
+        Chat:    {title:'Чат',              component:Chat},
+        Dialog:  {title:'Игра',             component:Dialog},
+        Notes:   {title:'Заметки',          component:Notes},
+        CharEdit:{title:'Персонажи',        component:CharEdit},
+        Archive: {title:'Архив чата',       component:Archive},
+        DialogArchive:{title:'Архив игры',  component:DialogArchive},
+        Options: {title:'Настройки',        component:Options},
+        Arhibash:{title:'Архибаш',          component:Arhibash},
     };
 
     export default {
@@ -189,7 +196,19 @@
 
     .splitter{
         width: 1px;
-        background: rgba(0,0,0,0.175);
+        background: rgba(0,0,0,.08);
         height: 100%;
+    }
+
+    .splitterHeader{
+        width: 1px;
+        background: rgba(0,0,0,.74);
+        height: 2rem;
+    }
+
+    .flash-message-pool{
+        position: absolute;
+        right: 0.5rem;
+        bottom: 0;
     }
 </style>

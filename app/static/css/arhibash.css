@@ -1,0 +1,33 @@
+.arhibash_root{
+    /*background: gray;*/
+    width: 100%;
+    height: 100%;
+    /*display: flex;*/
+    flex-direction: column;
+}
+
+.arhibash_conteiner{
+    width: 100%;
+    height: calc(100% - 2.5rem);
+    background: white;
+    outline:none;
+    display:flex;
+}
+
+.arhibash_post{
+    width: 100%;
+/*     height: calc(100%); */
+    background: white;
+    flex: 1;
+    margin:0.5rem;
+    box-sizing:border-box;
+    overflow-y:  auto;
+    outline:none;
+}
+
+.arhibash_header{
+    /*flex: 0;*/
+    width: 100%;
+    height: 2.5rem;
+    display: flex;
+}

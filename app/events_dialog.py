@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import session, request
 from flask_socketio import emit, join_room, leave_room, rooms
-from app import socketio, models, db, queries, clients, default_color, events_chat, redis, shouts, post_parser
+from app import socketio, sql_posts, models, db, queries, api, default_color, events_chat, redis, shouts, post_parser
 import json, datetime, time
 import diff_match_patch
 import requests
@@ -51,45 +51,54 @@ def bb_msg(color, text):
     return "[color=%s]%s[/color]"%(color,text)
 
 def save_reply(reply, color):
-    newpost = models.arhpost()
+    postid, pagetext_html = sql_posts.save_post({'postid':'',
+                                                 'userid':session['s_user'],
+                                                 'threadid':session['chn'],
+                                                 'color': color,
+                                                 'pagetext':bb_msg(color,reply)
+                                                 })
+    # newpost = sql_posts.arhpost()
+    #
+    # newpost.threadid   = session['chn']
+    # newpost.userid     = session['s_user']
+    # newpost.dateline   = int(time.time())
+    # newpost.pagetext   = bb_msg(color,reply)
+    # newpost.allowsmilie = 1
+    # newpost.showsignature = 1
+    # newpost.visible = 1
+    # newpost.color = color
+    #
+    # db.session.add(newpost)
+    # db.session.commit()
+    #
+    # newpostparsed = sql_posts.arhpostparsed()
+    # newpostparsed.postid = newpost.postid
+    # newpostparsed.dateline   = newpost.dateline
+    # newpostparsed.pagetext_html   =   post_parser.format(newpost.pagetext) #"<font color='%s'>%s</font>"%(color,reply)
+    # db.session.add(newpostparsed)
+    # db.session.commit()
 
-    newpost.threadid   = session['chn']
-    newpost.userid     = session['s_user']
-    newpost.dateline   = int(time.time())
-    newpost.pagetext   = bb_msg(color,reply)
-    newpost.allowsmilie = 1
-    newpost.showsignature = 1
-    newpost.visible = 1
-    newpost.color = color
-
-    db.session.add(newpost)
-    db.session.commit()
-
-    newpostparsed = models.arhpostparsed()
-    newpostparsed.postid = newpost.postid
-    newpostparsed.dateline   = newpost.dateline
-    newpostparsed.pagetext_html   =   post_parser.format(newpost.pagetext) #"<font color='%s'>%s</font>"%(color,reply)
-    db.session.add(newpostparsed)
-    db.session.commit()
-
-    reqText = "http://arhimag.org/rebuild.php?threadid=%s"%newpost.threadid
+    reqText = "http://arhimag.org/rebuild.php?threadid=%s"%session['chn']
     req = requests.get(reqText, headers={'Content-Type': 'application/json'})
     # print(reqText, req.status_code, req.text)
-    return newpost.postid, newpostparsed.pagetext_html
+    return postid, pagetext_html
 
 def change_reply(message):
     # reply = models.dialogs.query.filter_by(id=message['id']).first()
     # reply.reply = message['msg']
 
-    post = models.arhpost().query.filter_by(postid=message['id']).first()
-    # post.pagetext   = "[color=%s]%s[/color]"%(post.color,message['msg'])
-    post.pagetext = bb_msg(message['color'],message['msg'])
+    # post = sql_posts.arhpost().query.filter_by(postid=message['id']).first()
+    # # post.pagetext   = "[color=%s]%s[/color]"%(post.color,message['msg'])
+    # post.pagetext = bb_msg(message['color'],message['msg'])
+    #
+    # postparsed = sql_posts.arhpostparsed().query.filter_by(postid=message['id']).first()
+    # postparsed.pagetext_html = post_parser.format(post.pagetext) #"<font color='%s'>%s</font>"%(color,reply)
+    # db.session.commit()
 
-    postparsed = models.arhpostparsed().query.filter_by(postid=message['id']).first()
-    postparsed.pagetext_html = post_parser.format(post.pagetext) #"<font color='%s'>%s</font>"%(color,reply)
-    db.session.commit()
-
-    return postparsed.pagetext_html
+    postid, pagetext_html = sql_posts.save_post({'postid':message['id'],
+                                                 'pagetext':bb_msg(message['color'],message['msg'])
+                                                 })
+    return pagetext_html
 
 @socketio.on('dialog_preview', namespace=cur_namespace)
 def dialog_preview(message):
@@ -148,6 +157,11 @@ def set_color(message):
         emit('color_set', {'userid': userid, 'color': message['color']}, room=dlg_room(message['threadid']))
 
 def opts_key():
+    s_user = session.get('s_user')
+
+    if not s_user:
+        api.auth()
+
     return 'opts_'+session.get('s_user')
 
 @socketio.on('set_favorites', namespace=cur_namespace)
@@ -209,7 +223,7 @@ def set_thread_color(threadid, color):
     redis.hset(opts_key(), 'colors', json.dumps(colors))
 
 def get_thread(threadid):
-    return {'posts': queries.get_lastposts(threadid),'color': get_thread_color(threadid), 'is_favorite':is_favorite_thread(threadid), 'previews':get_previews(threadid)}
+    return {'posts': sql_posts.get_lastposts(threadid),'color': get_thread_color(threadid), 'is_favorite':is_favorite_thread(threadid), 'previews':get_previews(threadid)}
 
 @socketio.on('dialog_refresh', namespace=cur_namespace)
 def dialog_refresh(message):
