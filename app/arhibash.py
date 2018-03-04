@@ -1,5 +1,6 @@
-from flask import session
-from app import socketio, sql_posts
+from app import socketio, sql_posts, shouts, events_chat
+from flask import session, request
+from flask_socketio import emit
 
 bash_threadid = 25 # 25 - id темы с архибашем
 
@@ -16,10 +17,20 @@ def open_bash(data):
 
 @socketio.on('save_bash')
 def save_bash(data):
-    postid, pagetext = sql_posts.save_post({'postid':data['postid'],
+    isNew = data['postid']==''
+
+    postid, pagetext, time = sql_posts.save_post({'postid':data['postid'],
                                           'userid':session['s_user'],
                                           'threadid':bash_threadid,
                                           'color': '',
                                           'pagetext': data['pagetext'],
                                          })
-    return {'postid':postid}
+
+    if isNew:
+        newshout = shouts.do_newshout(session['s_user'],'[arhibash]выложил(а) Архибаш![/arhibash]','1',-1,'')
+        events_chat.emit_one_message('new', newshout)
+
+        # newshout = shouts.do_newshout(1, '11111', '1', '-1')
+
+    if postid>0:
+        return {'postid':postid, 'time':time}

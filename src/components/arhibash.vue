@@ -12,9 +12,10 @@
                 class="arhibash_post"
                 :text='pagetext'
                 custom-tag='div'
-                :options="{toolbar:{buttons:['bold','italic','underline','strikethrough']}}"
+                :options="{toolbar:{buttons:['bold','italic','underline','strikethrough']},anchorPreview: false, disableExtraSpaces:true, paste: {forcePlainText:false}}"
                 data-placeholder=" "
                 @edit="editBash($event)"
+
             />
         </div>
     </div>
@@ -22,18 +23,15 @@
 
 <script>
     import editor from 'vue2-medium-editor';
-    // import Vue from 'vue'
-    import htmltobb from "../htmltobb";
-    // import global from "../global";
-
-
+    import HTML2BBCode from 'html2bbcode'
+    var converter = new HTML2BBCode.HTML2BBCode({weaknewline:false});
 
     export default {
         data: function () {
             return {
                 pagetext:'',
                 postid:'',
-                time:0
+                time:0,
             }
         },
         methods: {
@@ -56,13 +54,17 @@
             },
             saveBash(event){
                 let this_app = this;
-                this.$socket.emit('save_bash',{postid:this.postid, pagetext:htmltobb(this.pagetext)},function (result) {
+
+                // console.log(converter.feed(this.pagetext).s);
+
+                this.$socket.emit('save_bash',{postid:this.postid, pagetext:converter.feed(this.pagetext).s},function (result) {
                     if (result) {
                         this_app.postid = result.postid;
-                        console.log(this_app.flash('Сохранено', 'success', {timeout: 2000}));
+                        this_app.time = result.time;
+                        this_app.flash('Сохранено', 'success', {timeout: 2000});
                     }
                     else
-                        console.log(this_app.flash('ВНИМАНИЕ! Пост не сохранен!', 'error', {timeout: 10000}));
+                        this_app.flash('ВНИМАНИЕ! Пост не сохранен!', 'error', {timeout: 10000});
 
                 });
             },
@@ -80,7 +82,7 @@
                 if (this.time==0){
                     return '* новый пост';
                 }else{
-                    return this.momentum(this.time*1000).utc().add(this.$store.state.timezoneoffset,'hours').subtract(0, 'days').calendar();
+                    return this.momentum(this.time*1000).utc().add(this.$store.state.timezoneoffset,'hours').format('DD MMM YYYY');
                 }
             }
         },

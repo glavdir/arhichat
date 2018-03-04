@@ -149,7 +149,7 @@
     filter: saturate(200%);
 }
 
-.msglink{
+.msglink, .bashlink{
     cursor: pointer;
     color: #6f5f4c;
     text-decoration: underline;

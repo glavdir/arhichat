@@ -38,6 +38,7 @@
                     </template>
                 </div>
                 <div class="previews">
+                    <!--{{prevs}}-->
                     <template v-for="(prv,key) in prevs">
                         <div v-if="key!='usr_'+curuserid && prv.msg!=''"  :key="prv.userid">
                             <!--&lt;!&ndash;<div class="prwUser" v-html="$root.getUserLook(prv.userid)"></div>&ndash;&gt;-->
@@ -131,7 +132,7 @@ export default {
     },
     methods: {
         nl2br:function(str){
-            return global.nl2br;// str.replace(/([^>])\n/g, '$1<br/>');
+            return global.nl2br(str);// str.replace(/([^>])\n/g, '$1<br/>');
         },
         setThreads(data){
             this.threads = data.threads;
@@ -166,12 +167,11 @@ export default {
             this.$socket.emit('dialog_refresh',
                 {threadid:this.threadid},
                 function (cbk){
-                // Vue.set(this_app,'posts',[]); //Небольшая подпорка, призванная принудительно обновить рендер постов
-                // this_app.$nextTick(function () {
+                    console.log(cbk.previews);
+
                     Vue.set(this_app,'posts',cbk.posts);
                     this_app.threadColor = cbk.color;
                     this_app.setAllPreviews(cbk.previews);
-                    // this_app.$forceUpdate();
                     dialog_posts_scrollTop();
                 // });
                 });

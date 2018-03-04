@@ -51,7 +51,7 @@ def bb_msg(color, text):
     return "[color=%s]%s[/color]"%(color,text)
 
 def save_reply(reply, color):
-    postid, pagetext_html = sql_posts.save_post({'postid':'',
+    postid, pagetext_html, time = sql_posts.save_post({'postid':'',
                                                  'userid':session['s_user'],
                                                  'threadid':session['chn'],
                                                  'color': color,
@@ -95,8 +95,9 @@ def change_reply(message):
     # postparsed.pagetext_html = post_parser.format(post.pagetext) #"<font color='%s'>%s</font>"%(color,reply)
     # db.session.commit()
 
-    postid, pagetext_html = sql_posts.save_post({'postid':message['id'],
-                                                 'pagetext':bb_msg(message['color'],message['msg'])
+    postid, pagetext_html, time = sql_posts.save_post({'postid':message['id'],
+                                                 'pagetext':bb_msg(message['color'],message['msg']),
+                                                 'color':message['color']
                                                  })
     return pagetext_html
 

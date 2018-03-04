@@ -16,13 +16,15 @@
 
 .arhibash_post{
     width: 100%;
-/*     height: calc(100%); */
+    /*     height: calc(100%); */
     background: white;
     flex: 1;
     margin:0.5rem;
     box-sizing:border-box;
     overflow-y:  auto;
     outline:none;
+    word-break: break-word;
+    white-space:pre-wrap;
 }
 
 .arhibash_header{

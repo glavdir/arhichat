@@ -13,6 +13,7 @@ export default {
     },
     curdomain: 'http://' + document.domain + socketport,
     nl2br (str){
+        str = ''+str;
         return str.replace(/([^>])\n/g, '$1<br/>');
     }
 }

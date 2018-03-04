@@ -25,7 +25,7 @@
             class="note_editor"
             :text='noteText'
             custom-tag='div'
-            :options="{toolbar:{buttons:['bold','italic','underline','strikethrough']}}"
+            :options="{toolbar:{buttons:['bold','italic','underline','strikethrough']}, paste: {forcePlainText:false}}"
             data-placeholder=" "
             v-on:edit='editNote($event)'/>
         </div>

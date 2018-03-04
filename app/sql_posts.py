@@ -84,19 +84,21 @@ def save_post(data):
 
     db.session.commit()
 
-    if isNew:
-        postparsed = arhpostparsed()
-        postparsed.postid    = post.postid
-        postparsed.dateline  = post.dateline
-        db.session.add(postparsed)
-    else:
-        postparsed = arhpostparsed().query.filter_by(postid=data['postid']).first()
+    pagetext_html = post_parser.format(post.pagetext)
+    #
+    # if isNew:
+    #     postparsed = arhpostparsed()
+    #     postparsed.postid    = post.postid
+    #     postparsed.dateline  = post.dateline
+    #     db.session.add(postparsed)
+    # else:
+    #     postparsed = arhpostparsed().query.filter_by(postid=data['postid']).first()
+    #
+    # postparsed.pagetext_html = pagetext_html
+    #
+    # if isNew:
+    #     db.session.add(postparsed)
+    #
+    # db.session.commit()
 
-    postparsed.pagetext_html = post_parser.format(post.pagetext)
-
-    if isNew:
-        db.session.add(postparsed)
-
-    db.session.commit()
-
-    return post.postid,postparsed.pagetext_html
+    return post.postid,pagetext_html,post.dateline

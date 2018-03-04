@@ -5,6 +5,7 @@ def get_parser():
     parser.add_formatter('post',    render_post)
     parser.add_formatter('thread',  render_thread)
     parser.add_formatter('dialog',  render_dialog)
+    parser.add_formatter('arhibash',render_arhibash)
     parser.add_formatter('img',     render_img, replace_links = False)
     # parser.add_formatter('color',   render_color)
 
@@ -36,6 +37,10 @@ def render_dialog(name, value, options, parent, context):
         return "<span class=msglink data-dialog_id='%(dialog_id)s'>#%(dialog_id)s</span> %(value)s" % {'dialog_id': options['dialog'], 'value': value}
     else:
         return value
+
+def render_arhibash(name, value, options, parent, context):
+    # [arhibash]выложил(а)Архибаш![ / arhibash]
+    return "<span class='bashlink'>%s</span>" % (value)
 
 def render_color(name, value, options, parent, context):
     # return '<div class="colorpost" style="color:%s;">%s</div>' % (options['color'], value)

@@ -220,12 +220,14 @@
                 this.curEditText = '';
             },
             shoutClick(event){
-                if (event.target.className=='msglink'){
-                   this.$store.commit('setPanel',{panel:'right',  param:'Dialog'});
+                if (event.target.className=='msglink') {
+                    this.$store.commit('setPanel', {panel: 'right', param: 'Dialog'});
                     var threadid = event.target.dataset.dialog_id;
                     this.$nextTick(function () {
-                        this.$bus.$emit('openThread', {threadid:threadid,panel:'right'});
+                        this.$bus.$emit('openThread', {threadid: threadid, panel: 'right'});
                     });
+                }else if (event.target.className=='bashlink') {
+                    this.$store.commit('setPanel', {panel: 'right', param: 'Arhibash'});
                 }
             },
             loadMessages(channel){

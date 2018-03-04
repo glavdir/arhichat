@@ -26,12 +26,12 @@
     import Kong from './components/kong.vue';
     import Chat from './components/chat.vue';
     import Dialog from './components/dialog.vue';
-    import Options from './components/options.vue';
-    import Archive from './components/archive';
+    // import Options from './components/options.vue';
+    // import Archive from './components/archive';
     import Notes from './components/notes';
-    import DialogArchive from './components/dialog-archive';
-    import CharEdit from './components/characterEdit.vue';
-    import Arhibash from './components/arhibash.vue';
+    // import DialogArchive from './components/dialog-archive';
+    // import CharEdit from './components/characterEdit.vue';
+    // import Arhibash from './components/arhibash.vue';
 
     import VueRouter from 'vue-router';
     Vue.use(VueRouter);
@@ -51,15 +51,17 @@
         routes: []
     });
 
-    var panels = {
+    // const Notes = ;
+
+    const panels = {
         Chat:    {title:'Чат',              component:Chat},
         Dialog:  {title:'Игра',             component:Dialog},
         Notes:   {title:'Заметки',          component:Notes},
-        CharEdit:{title:'Персонажи',        component:CharEdit},
-        Archive: {title:'Архив чата',       component:Archive},
-        DialogArchive:{title:'Архив игры',  component:DialogArchive},
-        Options: {title:'Настройки',        component:Options},
-        Arhibash:{title:'Архибаш',          component:Arhibash},
+        CharEdit:{title:'Персонажи',        component:() => import(/* webpackChunkName: "char" */ './components/characterEdit')},
+        Archive: {title:'Архив чата',       component:() => import(/* webpackChunkName: "archive" */ './components/archive')},
+        DialogArchive:{title:'Архив игры',  component:() => import(/* webpackChunkName: "archive" */ './components/dialog-archive')},
+        Options: {title:'Настройки',        component:() => import(/* webpackChunkName: "options" */ './components/options')},
+        Arhibash:{title:'Архибаш',          component:() => import(/* webpackChunkName: "bash" */ './components/arhibash')},
     };
 
     export default {
