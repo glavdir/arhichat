@@ -57,10 +57,10 @@ def get_posts(threads, mstart=0, count=25, search=''):
     for post in reversed(lastposts):
         resPosts.append({'time':post.dateline,'userid':post.userid, 'postid':post.postid,'pagetext':post_parser.format(post.pagetext)})
 
-    qstring = 'SELECT COUNT(post.postid) AS posts_count FROM arhpost post WHERE threadid in('+threads+') and post.pagetext like "%'+search+'%"'
-    posts_count = db.session.execute(qstring).first().posts_count
+    # qstring = 'SELECT COUNT(post.postid) AS posts_count FROM arhpost post WHERE threadid in('+threads+') and post.pagetext like "%'+search+'%"'
+    # posts_count = db.session.execute(qstring).first().posts_count
 
-    return {'posts':resPosts,'posts_count':posts_count}
+    return {'posts':resPosts} #,'posts_count':posts_count
 
 def save_post(data):
     isNew = data['postid']==''
@@ -85,20 +85,24 @@ def save_post(data):
     db.session.commit()
 
     pagetext_html = post_parser.format(post.pagetext)
-    #
-    # if isNew:
-    #     postparsed = arhpostparsed()
-    #     postparsed.postid    = post.postid
-    #     postparsed.dateline  = post.dateline
-    #     db.session.add(postparsed)
-    # else:
-    #     postparsed = arhpostparsed().query.filter_by(postid=data['postid']).first()
-    #
-    # postparsed.pagetext_html = pagetext_html
-    #
-    # if isNew:
-    #     db.session.add(postparsed)
-    #
-    # db.session.commit()
 
     return post.postid,pagetext_html,post.dateline
+
+
+def get_posts_count(threads, search=''):
+    qstring = 'SELECT COUNT(post.postid) AS posts_count FROM arhpost post WHERE threadid in('+threads+') and post.pagetext like "%'+search+'%"'
+    return db.session.execute(qstring).first().posts_count
+
+def get_post_number(threads, postid):
+    return db.session.execute(
+        'SELECT COUNT(post.postid) Count FROM arhpost post WHERE threadid in('+threads+') and postid<=%s' % (postid)).first().Count
+
+    # query_text = 'SELECT SUM(1) Count FROM arhpost '
+    # if search_str:
+    #     query_text=query_text+' '+'WHERE s_shout like "%'+ search_str +'%"'
+    #
+    # res = db.session.execute(query_text).first().Count
+    # if not res:
+    #     res = 0
+    #
+    # return res

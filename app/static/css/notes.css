@@ -1,35 +1,21 @@
 .notes_root{
-    /*background: gray;*/
     width: 100%;
     height: 100%;
     display: flex;
-    /* flex-direction: column; */
 }
 
-.addTab{
-    /*position: absolute;*/
-    /*bottom:0;*/
-    font-size: x-large;
-    cursor: pointer;
-    /* margin-right: 0.5rem; */
-    /* margin-left: 0.5rem; */
-    /* padding-left: 0.5rem; */
-    /* padding-right: 0.5rem; */
-    min-width: 2rem;
-    /* min-height: 1.5rem; */
-    /* max-height: 1.5rem; */
-    display:  inline-block;
-    /* height: 1rem; */
-    /* box-sizing:  border-box; */
-    flex: 0;
-    /* width: 1rem; */
-    border-bottom: 2px solid transparent;
-}
+/*.addTab{*/
+    /*font-size: x-large;*/
+    /*min-width: 2rem;*/
+    /*display:  inline-block;*/
+    /*flex: 0;*/
+    /*border-bottom: 2px solid transparent;*/
+/*}*/
 
 .notes_tabs_actions{
     display: flex;
     height: 2.5rem;
-    /* position:  absolute; */
+    justify-content: space-between;
 }
 
 .flex_splitter{
@@ -37,42 +23,27 @@
 }
 
 .notes_tabs_nav{
-    /* border-right: 1px solid rgba(0,0,0,0.175); */
     min-height: 2.5rem;
     min-width: 5rem;
     box-sizing: border-box;
-    /* line-height: 1.5rem; */
-    /* box-sizing:  border-box; */
-    /* display: flex; */
     width: 10rem;
-    /* height: 100%; */
     flex: 1;
     overflow-y: auto;
     background: rgba(158, 163, 176, 0.1);
     direction: rtl;
     margin: 0;
     padding: 0;
-    /* padding-left: 4px; */
 }
 
 .notes_tabs{
-    /* display: inline-block; */
-    /* top: 1px; */
-    /* position: relative; */
-    /* flex: 1; */
     min-height: 1.5rem;
     box-sizing:  border-box;
-    /* padding: 0.25rem; */
     overflow-x:  hidden;
 }
 
 .notes_tab{
-    /* background: cornflowerblue; */
     display: inline-block;
     min-height: calc(2rem - 2px);
-    /* line-height: 2rem; */
-    /* margin-left: 0.25rem; */
-    /* margin-right: 0.25rem; */
     box-sizing: border-box;
     color: #444;
     cursor: pointer;
@@ -106,12 +77,6 @@
     background:  white;
 }
 
-
-
-/*.notes_tab_active:after{*/
-    /*border: 20px solid transparent;	border-right: 20px solid green;*/
-/*}*/
-
 .notes_tab_editing{
     min-width: 4rem;
     outline: none;
@@ -120,8 +85,6 @@
 .notes_tab_label{
     min-width: 4rem;
     outline: none;
-    /* height: 2rem; */
-    /* height: 100%; */
     width: 100%;
     vertical-align: middle;
     display:table-cell;
@@ -142,7 +105,6 @@
 .note_editor{
     width: 100%;
     height: 100%;
-    /*     background:  red; */
     flex: 2;
     outline:none;
     overflow-y:  auto;

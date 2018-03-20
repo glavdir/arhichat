@@ -40,15 +40,6 @@ class arhusergroup(db.Model):
     adminpermissions = db.Column(db.SmallInteger)
     # users         = db.relationship('arhuser', backref='group', lazy='dynamic')
 
-class arhforum(db.Model):
-    forumid     = db.Column(db.SmallInteger, primary_key = True)
-    childlist   = db.Column(db.String(1000), index = False, unique = False)
-
-class arhthread(db.Model):
-    threadid     = db.Column(db.SmallInteger, primary_key = True)
-    forumid      = db.Column(db.SmallInteger, primary_key = False)
-    title        = db.Column(db.String(100), index = False, unique = False)
-
 class arhinfernoshoutusers(db.Model):
     s_user  = db.Column(db.SmallInteger, db.ForeignKey('arhuser.userid'), primary_key=True)
     s_color = db.Column(db.String(32), index =False, unique =False)

@@ -206,37 +206,6 @@ def find_thread_by_postid(postid):
 def get_message_by_sid(sid,original):
     return True, msg(find_shout_by_sid(sid), original)
 
-def get_thread_title(dialog_id):
-    thread_title = ''
-    thread = models.arhthread.query.filter_by(threadid=dialog_id).first()
-    if thread:
-        thread_title = thread.title
-    return thread_title
-
-def get_threadlist(favorites=[]):
-    forums = db.session.execute('SELECT childlist FROM arhforum WHERE forumid IN (81,95)').fetchall()
-
-    childlist = ''
-    for forum in forums:
-        if childlist!='':
-            childlist = childlist+','
-        childlist = childlist+forum.childlist
-
-    # childlist = ','.forum.childlist
-
-    if not favorites or favorites == '[]':
-        favorites_str = '0'
-    else:
-        favorites_str = ','.join(favorites)
-
-    threadlist = db.session.execute('select threadid,title, threadid in (%s) as isFav from arhthread where forumid in (%s)  ORDER BY isFav DESC,threadid DESC'%(favorites_str,childlist)).fetchall()
-
-    threads = []
-
-    for thread in threadlist:
-        threads.append({'threadid':thread.threadid, 'title':thread.title, 'isFav':thread.isFav!=0})
-
-    return threads
 
 def get_sid_number(sid):
      return db.session.execute('SELECT SUM(s_private = "-1" and sid<=%s) Count FROM arhinfernoshout' % (sid)).first().Count
@@ -287,30 +256,27 @@ def save_options(options,userid):
 
     return update_shouts
 
-
-def get_threadsettings_by_threadid(threadid):
-    settings = {'num_posts': 11}
-
-    store_settings = models.threadsettings.query.filter_by(threadid=threadid).first()
-    if store_settings:
-        if store_settings.settings:
-            settings_keys = json.loads(store_settings.settings)
-            for key in settings_keys:
-                if key in settings:
-                    settings[key] = settings_keys[key]
-
-    return settings
-
-def save_threadsettings(options,threadid):
-    save_options = models.threadsettings.query.filter_by(threadid=threadid).first()
-
-    if not save_options:
-        save_options = models.threadsettings()
-        db.session.add(save_options)
-
-    save_options.threadid = threadid
-    save_options.settings = json.dumps(options)
-    db.session.commit()
-
-def get_postst_by_search_string(search_str):
-    return db.session.execute('SELECT * FROM arhpost  WHERE MATCH (pagetext) AGAINST (:search_str)',{'search_str':search_str})
+#
+# def get_threadsettings_by_threadid(threadid):
+#     settings = {'num_posts': 11}
+#
+#     store_settings = models.threadsettings.query.filter_by(threadid=threadid).first()
+#     if store_settings:
+#         if store_settings.settings:
+#             settings_keys = json.loads(store_settings.settings)
+#             for key in settings_keys:
+#                 if key in settings:
+#                     settings[key] = settings_keys[key]
+#
+#     return settings
+#
+# def save_threadsettings(options,threadid):
+#     save_options = models.threadsettings.query.filter_by(threadid=threadid).first()
+#
+#     if not save_options:
+#         save_options = models.threadsettings()
+#         db.session.add(save_options)
+#
+#     save_options.threadid = threadid
+#     save_options.settings = json.dumps(options)
+#     db.session.commit()

@@ -33,9 +33,9 @@
                                 ></chat-shout>
                         <div v-if="curEditSid==message.sid" class="edit-div">
                             <input v-focus="curEditSid!=0" ref="chat_edit_text" class="edit-input chat_edit_text" placeholder="Редактирование сообщения" v-model="curEditText" @keydown.enter="editConfirm">
-                            <button class="bttn icon-ok chat_edit_OK" title="OK" @click="editConfirm"></button>
-                            <button class="bttn icon-trash chat_edit_Delete" title="Удалить" @click="editDelete"></button>
-                            <button class="bttn icon-cancel chat_edit_Cancel" title="Отмена" @click="editFinish"></button>
+                            <button class="bttn icon-ok chat_edit_OK" title="OK" @click="editConfirm"><icon name ='check'></icon></button>
+                            <button class="bttn icon-trash chat_edit_Delete" title="Удалить" @click="editDelete"><icon name ='trash'></icon></button>
+                            <button class="bttn icon-cancel chat_edit_Cancel" title="Отмена" @click="editFinish"><icon name ='close'></icon></button>
                         </div>
                     </div>
                     <button class="addMessages" @click="loadMessages(channel)">Загрузить еще...</button>
@@ -46,7 +46,7 @@
     <div class="chat_footer">
         <div class="chat_senddiv">
             <input  class="chat_text edit-input" placeholder="Сообщения для бога сообщений"  v-model="chat_text" @keydown.enter="sendMessage">
-            <button class="chat_send bttn icon-ok" title="Отправить" @click="sendMessage"></button>
+            <button class="chat_send bttn" title="Отправить" @click="sendMessage"><icon name ='check'></icon></button>
         </div>
     </div>
 </div>
@@ -64,8 +64,6 @@
             })
         }
     });
-
-    // var chat_app;
 
     export default {
         data: function() {return{

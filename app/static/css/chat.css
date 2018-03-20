@@ -9,20 +9,14 @@
 }
 
 .tabUser{
-    /*! height: 1.5rem; */
-    /* float: left; */
-    /* margin-top: 0.1rem; */
     margin-right: 0.12rem;
     margin-left: 0.12rem;
     cursor: pointer;
-    /*!* flex:0; *!*/
-    /*!* padding-bottom:0.1rem; *!*/
-    /*display: inline-block;*/
-    /*white-space: nowrap;*/
+    display: inline-block;
     height: Calc(100%);
     box-sizing:  border-box;
     line-height: 2.5rem;
-    float: left;
+    /*float: left;*/
 }
 
 .tabOffline{
@@ -76,6 +70,7 @@
     width: max-content;
     box-sizing:  border-box;
     /* transform: scaleY(-1); */
+     user-select: none;
 }
 
 @-moz-document url-prefix()

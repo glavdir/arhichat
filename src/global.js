@@ -1,6 +1,6 @@
 // console.log(location.port);
 
-var socketport = (location.port==8080) ? ':5000' : location.port;
+var socketport = (location.port==8080||location.port==5000) ? ':5000' : location.port;
 
 export default {
     findObject(array, attr, value){

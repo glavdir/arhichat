@@ -68,6 +68,7 @@
         display: flex;
         float: right;
         cursor: pointer;
+        user-select: none;
     }
 
     .kong_counter{

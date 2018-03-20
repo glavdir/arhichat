@@ -30,11 +30,13 @@
         </div>
         <div class="opts_group">
             <div class='opts_group_tittle'>Чат</div>
-            <div class="option">Цвет моих сообщений
+            <div class="option">
+                <span>Цвет моих сообщений</span>
                 <color-select class="bttn" @input="saveOptions" v-model="opts.s_color" :colorlist="[['darkred','#993399','#6600FF','#4444','#4B0082'],
                                                                                                     ['Red','Blue','Teal','RoyalBlue','Navy'],
                                                                                                     ['YellowGreen','Green','Brown','DarkRed','DarkSlateGray'],
                                                                                                     ['Black','Purple','BlueViolet','Indigo','DarkMagenta']]"></color-select>
+
             </div>
         </div>
     </div>

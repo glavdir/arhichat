@@ -1,7 +1,7 @@
 <template>
     <div class="page_nav_block">
-        <div class="page_nav icon-angle-double-left" @click="firstPage"></div>
-        <div class="page_nav icon-angle-left" @click="decPage"></div>
+        <div class="page_nav icon-conteiner" @click="firstPage"><icon name="angle-double-left"></icon></div>
+        <div class="page_nav icon-conteiner" @click="decPage"><icon name="angle-left"></icon></div>
         <input class="page_nav_input"
             type="text" min="1" :max="pageCount"
             :placeholder="''+curPage+' из '+pageCount"
@@ -10,8 +10,8 @@
             @focus="doFocus"
             @blur="doBlur"
         >
-        <div class="page_nav icon-angle-right" @click="incPage"></div>
-        <div class="page_nav icon-angle-double-right" @click="lastPage"></div>
+        <div class="page_nav icon-conteiner" @click="incPage"><icon name="angle-right"></icon></div>
+        <div class="page_nav icon-conteiner" @click="lastPage"><icon name="angle-double-right"></icon></div>
     </div>
 </template>
 
@@ -55,6 +55,11 @@
                 this.$emit('input',this.curPage);
             },
         },
+        watch: {
+            value: function (newVal, oldVal) {
+              this.curPage = newVal;
+            }
+        }
     }
 </script>
 
@@ -67,7 +72,7 @@
 
     .page_nav{
         width: 1rem;
-        display: inline-block;
+        /*display: inline-block;*/
         text-align: center;
         height: 100%;
         cursor: pointer;

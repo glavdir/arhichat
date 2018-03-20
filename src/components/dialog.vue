@@ -1,6 +1,6 @@
 <template>
 <div class="dialog_root">
-    <div class="dialog_header header">
+    <div class="dialog_header header" ref="header">
         <div class="dialog_thread"><!--
             --><div class="dialog_thread_select">
                 <multiselect
@@ -16,8 +16,8 @@
                 ></multiselect>
             </div><!--
             --><div class="dialog_thread_buttons">
-                <span @click="changeFav" :class="{favorite_tread:true,favorite_tread_true:curThread.isFav, favorite_tread_false:!curThread.isFav, header_link:true}"></span>
-                <span @click="refreshThread" class="dialog_refresh header_link icon-arrows-cw"></span>
+                <span @click="changeFav" class="favorite_tread icon-conteiner header_link"><icon :name = "favIcon"></icon></span>
+                <span @click="refreshThread" class="dialog_refresh icon-conteiner header_link"><icon name = "refresh"></icon></span>
                 <!--<span @click="test" class="dialog_refresh header_link icon-ok"></span>-->
             </div>
         </div>
@@ -31,7 +31,7 @@
                         <!--<post :content="pst.pagetext" @update="editPost(pst,pstkey,$event)"></post>-->
                         <medium-editor class="reply"
                                        :text='pst.pagetext'
-                                       :options="{toolbar: false}"
+                                       :options="postEditorOpts"
                                        custom-tag='div'
                                        data-placeholder=" "
                                        v-on:edit='editPost(pst,pstkey,$event)'/>
@@ -42,21 +42,29 @@
                     <template v-for="(prv,key) in prevs">
                         <div v-if="key!='usr_'+curuserid && prv.msg!=''"  :key="prv.userid">
                             <!--&lt;!&ndash;<div class="prwUser" v-html="$root.getUserLook(prv.userid)"></div>&ndash;&gt;-->
-                            <div class="preview" v-html="nl2br(prv.msg)" v-bind="{'style':'color:'+prv.color}"></div>
+                            <div v-show="!isBlank(prv.msg)" class="preview" v-html="nl2br(prv.msg)" v-bind="{'style':'color:'+prv.color}"></div>
                         </div>
                     </template>
                 </div>
             </div>
         </div>
         <div class="dialog_senddiv" @keydown.enter.ctrl="sendDialogPost">
-            <textarea class = "dialogEditor" ref="dialogEditor" v-model="dialogText"  @input="applyTextEdit" placeholder="Ответы для бога ответов...">
-            </textarea>
+            <!--<textarea class = "dialogEditor" ref="dialogEditor" v-model="dialogText"  @input="applyTextEdit" placeholder="Ответы для бога ответов...">-->
+            <!--</textarea>-->
+
+            <medium-editor :class="{dialogEditor:true, dialogEditorPlaceholder:isBlank(dialogText)}"
+                           :text="dialogText"
+                           :options="editorOpts"
+                           custom-tag='div'
+                           data-placeholder="Ответы для бога ответов"
+                           v-on:edit='applyTextEdit($event)'/>
+
             <div class="dialog_buttons">
-                <button @click="sendDialogPost" class="bttn icon-ok" id="dialog_send" title="Отправить"></button>
-                <div id="dialog-splitter-1" class="bttn-splitter"></div>
-                <button @click="restoreText" class="bttn icon-history" id="dialog_history" title="Последний пост"></button>
-                <div id="dialog-splitter-2" class="bttn-splitter"></div>
-                <color-select class="bttn" @input="changeColor" v-model="threadColor" :colorlist="[['darkred','#993399','#6600FF','blue','navy']]"></color-select>
+                <button @click="sendDialogPost" class="bttn icon-conteiner" id="dialog_send" title="Отправить"><icon name="check"></icon></button>
+                <div class="bttn-splitter"></div>
+                <button @click="restoreText" class="bttn icon-conteiner" id="dialog_history" title="Последний пост"><icon name="history"></icon></button>
+                <div class="bttn-splitter"></div>
+                <color-select class="bttn icon-conteiner" @input="changeColor" v-model="threadColor" :colorlist="[['darkred','#993399','#6600FF','blue','navy']]"></color-select>
             </div>
         </div>
     </div>
@@ -70,6 +78,9 @@ import Vue from 'vue';
 import axios from 'axios';
 import diff_match_patch from 'diff-match-patch'
 var dmp = new diff_match_patch.diff_match_patch();
+
+import HTML2BBCode from 'html2bbcode'
+var converter = new HTML2BBCode.HTML2BBCode({weaknewline:false});
 
 function dialog_posts_scrollTop() {
     var objDiv = document.querySelector(".dialog_posts");//$("#dialog_posts");
@@ -90,12 +101,31 @@ export default {
         threadColor: '',
         posts: [],
         prevs: [],
-        startThread:0
+        startThread:0,
+        editorOpts:{
+            toolbar:{
+                buttons:['bold','italic','underline']},
+            paste: {
+                forcePlainText:false,
+                cleanPastedHTML:true,
+                cleanAttrs:['class', 'style', 'dir', 'text-align'],
+                unwrapTags:['font']
+            },
+            placeholder: false},
+        postEditorOpts:{
+            toolbar:{
+                buttons:['bold','italic','underline'],
+            },
+            paste: {forcePlainText:false},
+            placeholder: false}
     }},
     computed:{
         curuserid:function(){
             return this.$store.state.curuserid
         },
+        favIcon:function () {
+            return (this.curThread.isFav) ? 'star' : 'star-o';
+        }
         // threads:function () {
         //     return this.$store.state.threads;
         // }
@@ -131,6 +161,16 @@ export default {
         }
     },
     methods: {
+        isBlank(ev){
+            return ev=='' || ev=='<p></p>' || ev=='<p><br></p>';
+        },
+        toBB(html, color=''){
+            let res = converter.feed(html).s;
+            if (color!=''){
+                res = '[color='+color+']'+res+'[/color]';
+            }
+            return res;
+        },
         nl2br:function(str){
             return global.nl2br(str);// str.replace(/([^>])\n/g, '$1<br/>');
         },
@@ -167,8 +207,7 @@ export default {
             this.$socket.emit('dialog_refresh',
                 {threadid:this.threadid},
                 function (cbk){
-                    console.log(cbk.previews);
-
+                    // console.log(cbk.previews);
                     Vue.set(this_app,'posts',cbk.posts);
                     this_app.threadColor = cbk.color;
                     this_app.setAllPreviews(cbk.previews);
@@ -227,14 +266,20 @@ export default {
             this.setText(localStorage.getItem('last_dialog_text_'+this.threadid));
         },
         applyTextEdit(ev) {
-            var diffs = dmp.patch_make(this.prevText,this.dialogText);
+            let text = ev.event.target.innerHTML
+            let diffs = dmp.patch_make(this.dialogText,text);
             this.$socket.emit('diff',{dialog_id:this.threadid, diffs:dmp.patch_toText(diffs), color:this.threadColor});
-            this.prevText = this.dialogText;
+            this.dialogText = text;
             localStorage.setItem('last_dialog_text_'+this.threadid,this.dialogText);
+
+            // var diffs = dmp.patch_make(this.prevText,this.dialogText);
+            // this.$socket.emit('diff',{dialog_id:this.threadid, diffs:dmp.patch_toText(diffs), color:this.threadColor});
+            // this.prevText = this.dialogText;
+            // localStorage.setItem('last_dialog_text_'+this.threadid,this.dialogText);
         },
         sendDialogPost(){
-            if (this.dialogText!='') {
-                this.$socket.emit('send_text', {threadid: this.threadid, msg: this.dialogText, color: this.threadColor});
+            if (!this.isBlank(this.dialogText)) {
+                this.$socket.emit('send_text', {threadid: this.threadid, msg: this.toBB(this.dialogText,this.threadColor), color: this.threadColor});
                 this.$socket.emit('dialog_preview', {msg: '', color:''});
                 this.setText('');
             }
@@ -250,7 +295,8 @@ export default {
         },
         editPost(pst,pstkey,event){
             pst.pagetext = event.event.target.innerHTML;
-            this.$socket.emit('dialog_change', {msg:event.event.target.innerText, id:pst.postid, color:pst.color});//, color:event.event.target.style.color
+            // this.$socket.emit('dialog_change', {msg:event.event.target.innerText, id:pst.postid, color:pst.color});//, color:event.event.target.style.color
+            this.$socket.emit('dialog_change', {msg:this.toBB(event.event.target.innerHTML), id:pst.postid, color:pst.color});//, color:event.event.target.style.color
         },
         loadThreads(){
             var this_app = this;
@@ -266,14 +312,7 @@ export default {
         }
     },
     mounted(){
-        // console.log(this.threadid);
-        // if (this.threadid==0){
-        //     this.setThreadByID(this.$store.state.lastThreadid);
-        // }
-
         this.openThread = (data) => {
-            // this.$store.commit('setLastThreadid',data.threadid);
-            // this.setThreadByID(data.threadid);
             this.setLastThread(data.threadid);
             if (this.threads.length!=0){
                 this.setThreadByID(data.threadid);

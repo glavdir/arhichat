@@ -32,9 +32,10 @@
         <div class="dialog_archive_posts">
             <div class='dialog_archive_container'>
                 <div  class="dialog_archive_replies">
-                    <template v-for = "(pst) in posts">
-                        <div class="reply" contenteditable="false" :data-postid="pst.postid" v-html="pst.pagetext"></div>
-                    </template>
+                    <div class="reply" v-for = "(pst) in posts">
+                        <div contenteditable="false" :data-postid="pst.postid" v-html="pst.pagetext"></div>
+                        <a v-show="isSearchResult" class="postlink" :data-postid="pst.postid" @click="gotoPost(pst.postid)">Перейти</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -55,7 +56,9 @@
     import axios from 'axios';
     import multiselect from 'vue-multiselect';
     import pages from './pages';
-    // import * as styles from "vue-multiselect/dist/vue-multiselect.min.css"
+
+    // import {scroller} from 'vue-scrollto/src/scrollTo'
+    // const ScrollTo = scroller();
 
 	export default {
 		name: "dialog-archive",
@@ -65,9 +68,9 @@
             page:1,
             threads:[],
             selThreads:[],
-            dispPage: '',
             searchString:'',
             startThread: 0,
+            isSearchResult:false
         }},
         methods:{
             setThreads(data){
@@ -81,7 +84,7 @@
             limitText(){
                 return 'И еще '+ (this.selThreads.length-1) + '';
             },
-            getPosts() {
+            getPosts(postid='') {
                 var this_app = this;
                 if (this.selThreads.length > 0) {
                     var threadsstr='';
@@ -90,16 +93,35 @@
                         var add =  (threadsstr=='')? '' : ',';
                         threadsstr = threadsstr + add + this.selThreads[thr].threadid;
                     }
-                    // console.log(threadsstr);
-                    axios.get(global.curdomain + '/api/posts_archive/', {withCredentials: true, params: {threads: threadsstr, page:this.page, search:this.searchString}})
+
+                    let params = {threads: threadsstr, page:this.page, search:this.searchString};
+
+                    if (postid!=''){
+                        params['postid']=postid;
+                    }
+
+                    axios.get(global.curdomain + '/api/posts_archive/', {withCredentials: true, params: params})
                         .then(function (response) {
                             // console.log(response.data);
                             this_app.posts = response.data.posts.slice().reverse();
                             this_app.pageCount = response.data.page_count;
+                            this_app.isSearchResult = this_app.searchString!='';
+                            this_app.page = response.data.page;
+
+                            if (postid!=''){
+                                this_app.$nextTick( function(){
+                                    document.querySelector('div[data-postid="'+postid+'"]').scrollIntoView(true);
+                                });
+                            }
                         });
                 }else{
                     this_app.posts = [];
                 }
+            },
+            gotoPost(postid){
+                this.page = 1;
+                this.searchString = '';
+                this.getPosts(postid);
             },
             doSearch(){
                 this.page = 1;
@@ -180,5 +202,11 @@
 
     .dialog_archive_footer_splitter{
         flex: 1;
+    }
+
+    .postlink{
+        cursor: pointer;
+        text-decoration: underline;
+        color: #444;
     }
 </style>

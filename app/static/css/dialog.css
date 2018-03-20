@@ -78,7 +78,7 @@
     margin-left:0.5rem;
     border: none;
     background: transparent;
-    display: inline-block;
+    /* display: inline-block; */
     height: 100%;
     padding: 0;
     cursor: pointer;
@@ -188,7 +188,7 @@
     box-sizing: border-box;
 }
 
-.dialogEditor:before {
+.dialogEditorPlaceholder:before {
     content:attr(data-placeholder);
     color:gray;
     position:absolute;

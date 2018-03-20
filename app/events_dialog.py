@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from flask import session, request
 from flask_socketio import emit, join_room, leave_room, rooms
-from app import socketio, sql_posts, models, db, queries, api, default_color, events_chat, redis, shouts, post_parser
+from app import socketio, sql_posts, models, db, queries, sql_threads, api, default_color, events_chat, redis, shouts, post_parser
 import json, datetime, time
 import diff_match_patch
 import requests
@@ -34,7 +34,7 @@ def dialog_text(message):
     delsid = shouts.delete_last_by_dialog_id(threadid)
 
     userid = session['s_user'] if session['s_user'] else 0
-    newshout = shouts.do_newshout(userid, 'ответил(а) на канале [dialog=%(dialog_id)s]%(title)s[/dialog]' % {'dialog_id':threadid, 'title':queries.get_thread_title(threadid)}, '1', -1, threadid)
+    newshout = shouts.do_newshout(userid, 'ответил(а) на канале [dialog=%(dialog_id)s]%(title)s[/dialog]' % {'dialog_id':threadid, 'title':sql_threads.get_thread_title(threadid)}, '1', -1, threadid)
 
     emit('dialog_message', {'pagetext': pagetext, 'color':color, 'postid':postid},room=dlg_room(session.get('chn')), namespace=cur_namespace)
 
@@ -48,7 +48,8 @@ def dialog_text(message):
 
 
 def bb_msg(color, text):
-    return "[color=%s]%s[/color]"%(color,text)
+    return text
+    # return "[color=%s]%s[/color]"%(color,text)
 
 def save_reply(reply, color):
     postid, pagetext_html, time = sql_posts.save_post({'postid':'',
@@ -163,7 +164,7 @@ def opts_key():
     if not s_user:
         api.auth()
 
-    return 'opts_'+session.get('s_user')
+    return 'opts_'+str(session.get('s_user'))
 
 @socketio.on('set_favorites', namespace=cur_namespace)
 def set_favorites(message):

@@ -19,20 +19,15 @@
 </template>
 
 <script>
-    import Vue from 'vue';
+    import Vue from /* webpackChunkName: "vue" */'vue';
     import global from './global';
     import axios from 'axios';
     import Panel from './components/panel.vue';
     import Kong from './components/kong.vue';
     import Chat from './components/chat.vue';
     import Dialog from './components/dialog.vue';
-    // import Options from './components/options.vue';
-    // import Archive from './components/archive';
-    import Notes from './components/notes';
-    // import DialogArchive from './components/dialog-archive';
-    // import CharEdit from './components/characterEdit.vue';
-    // import Arhibash from './components/arhibash.vue';
 
+    import Notes from './components/notes';
     import VueRouter from 'vue-router';
     Vue.use(VueRouter);
 
@@ -46,22 +41,39 @@
     Vue.use(VueFlashMessage);
     import 'vue-flash-message/dist/vue-flash-message.min.css';
 
+    import Icon from 'vue-awesome/components/Icon'
+    Vue.component('icon', Icon);
+    import 'vue-awesome/icons/check'
+    import 'vue-awesome/icons/trash'
+    import 'vue-awesome/icons/close'
+    import 'vue-awesome/icons/star'
+    import 'vue-awesome/icons/star-o'
+    import 'vue-awesome/icons/refresh'
+    import 'vue-awesome/icons/chevron-right'
+    import 'vue-awesome/icons/history'
+    import 'vue-awesome/icons/angle-left'
+    import 'vue-awesome/icons/angle-right'
+    import 'vue-awesome/icons/angle-double-left'
+    import 'vue-awesome/icons/angle-double-right'
+    import 'vue-awesome/icons/plus'
+    import 'vue-awesome/icons/floppy-o'
+    import 'vue-awesome/icons/expand'
+
     const router = new VueRouter({
         mode: 'history',
         routes: []
     });
 
-    // const Notes = ;
-
     const panels = {
         Chat:    {title:'Чат',              component:Chat},
         Dialog:  {title:'Игра',             component:Dialog},
         Notes:   {title:'Заметки',          component:Notes},
-        CharEdit:{title:'Персонажи',        component:() => import(/* webpackChunkName: "char" */ './components/characterEdit')},
+        CharEdit:{title:'Персонажи',        component:() => import(/* webpackChunkName: "game" */ './components/characterEdit')},
         Archive: {title:'Архив чата',       component:() => import(/* webpackChunkName: "archive" */ './components/archive')},
         DialogArchive:{title:'Архив игры',  component:() => import(/* webpackChunkName: "archive" */ './components/dialog-archive')},
         Options: {title:'Настройки',        component:() => import(/* webpackChunkName: "options" */ './components/options')},
         Arhibash:{title:'Архибаш',          component:() => import(/* webpackChunkName: "bash" */ './components/arhibash')},
+        Threads: {title:'Разделы',          component:() => import(/* webpackChunkName: "game" */ './components/threads')},
     };
 
     export default {
@@ -140,7 +152,7 @@
         },
         components:{
             'arh-panel': Panel,
-            'kong':Kong
+            'kong':Kong,
         },
         created(){
             var this_app = this;

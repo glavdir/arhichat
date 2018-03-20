@@ -2,9 +2,9 @@
     <div class="notes_root">
         <div class="notes_tabs_nav">
             <div class="notes_tabs_actions">
-                <button class="bttn icon-trash" @click="delTab" title="Удалить заметку"></button>
-                <span class="flex_splitter"></span>
-                <button class="bttn addTab" @click="addTab" title="Добавить заметку">+</button>
+                <button class="bttn icon-conteiner" @click="delTab" title="Удалить заметку"><icon name="trash"></icon></button>
+                <!--<span class="flex_splitter"></span>-->
+                <button class="bttn icon-conteiner" @click="addTab" title="Добавить заметку"><icon name="plus"></icon></button>
             </div><div class="notes_tabs">
                 <div
                      v-for="(tab, index) in tabs"
@@ -25,7 +25,7 @@
             class="note_editor"
             :text='noteText'
             custom-tag='div'
-            :options="{toolbar:{buttons:['bold','italic','underline','strikethrough']}, paste: {forcePlainText:false}}"
+            :options="editorOpts"
             data-placeholder=" "
             v-on:edit='editNote($event)'/>
         </div>
@@ -48,7 +48,16 @@
             return {
                 tabs: [],//{id:0,title:'Общие',editing:false}
                 curTab:'',
-                noteText:''
+                noteText:'',
+                editorOpts:{
+                    toolbar:{buttons:['bold','italic','underline','strikethrough']},
+                    paste:{
+                        forcePlainText:false,
+                        cleanPastedHTML:true,
+                        cleanAttrs:['class', 'style', 'dir', 'text-align'],
+                        unwrapTags:['font']
+                    },
+                }
             }
         },
         methods: {

@@ -1,18 +1,18 @@
 <template>
     <div class="arhibash_root">
         <div class="arhibash_header header">
-            <button class="bttn icon-angle-left" @click="openPrevBash"></button>
-            <button class="bttn icon-angle-right" @click="openNextBash"></button>
+            <button class="bttn icon-conteiner" @click="openPrevBash"><icon name="angle-left"></icon></button>
+            <button class="bttn icon-conteiner" @click="openNextBash"><icon name="angle-right"></icon></button>
             <span class="flex_splitter">{{postTitle}}</span>
-            <button class="bttn" @click="newBash">Новый пост</button>
-            <button class="bttn" @click="saveBash">Сохранить</button>
+            <button class="bttn icon-conteiner" @click="newBash" title="Новый пост"><icon name="plus"></icon></button>
+            <button class="bttn icon-conteiner" @click="saveBash" title="Сохранить"><icon name="floppy-o"></icon></button>
         </div>
         <div class="arhibash_conteiner">
             <medium-editor
                 class="arhibash_post"
                 :text='pagetext'
                 custom-tag='div'
-                :options="{toolbar:{buttons:['bold','italic','underline','strikethrough']},anchorPreview: false, disableExtraSpaces:true, paste: {forcePlainText:false}}"
+                :options="editorOpts"
                 data-placeholder=" "
                 @edit="editBash($event)"
 
@@ -32,6 +32,15 @@
                 pagetext:'',
                 postid:'',
                 time:0,
+                editorOpts:{
+                    toolbar:{buttons:['bold','italic','underline','strikethrough']},
+                    paste:{
+                        forcePlainText:false,
+                        cleanPastedHTML:true,
+                        cleanAttrs:['class', 'style', 'dir', 'text-align'],
+                        unwrapTags:['font']
+                    },
+                }
             }
         },
         methods: {

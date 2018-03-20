@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from app import app, queries, sql_posts, events_dialog, notes, shouts
+from app import app, queries, sql_posts, sql_threads, events_dialog, notes, shouts
 from flask import session, request, json
 from app import revision
 
@@ -44,7 +44,7 @@ def users():
 
 @app.route('/api/threads/')
 def threads():
-    threadlist = queries.get_threadlist(favorites=events_dialog.get_favorites())
+    threadlist = sql_threads.get_threadlist(favorites=events_dialog.get_favorites())
     last_thread = events_dialog.get_last_thread()
 
     if str(last_thread)=='0' and len(threadlist)>0:
@@ -101,6 +101,7 @@ def posts_archive():
     page        = request.args.get('page')
     count       = request.args.get('count')
     threads     = request.args.get('threads')
+    postid      = request.args.get('postid')
 
     try:
         page = int(page)
@@ -118,10 +119,28 @@ def posts_archive():
     if not search:
         search = ''
 
+    total_post_count = sql_posts.get_posts_count(threads, search)
+
+    if postid:
+        post_number = sql_posts.get_post_number(threads, postid)
+        page = get_page_by_number(post_number,count)
+
     mstart  = count*(page - 1)
 
     result = sql_posts.get_posts(threads=threads, mstart=mstart, count=count, search=search)
 
-    result['page_count'] = get_page_by_number(result['posts_count'],count)
+    result['page_count'] = get_page_by_number(total_post_count,count)
+    result['page'] = page
+
+    # print(page)
 
     return json.dumps(result)
+
+
+@app.route('/api/forums/')
+def forums():
+    threads = sql_threads.get_threadlist()
+    forums = sql_threads.get_forums()
+    for thread in threads:
+        forums[thread['forumid']]['threads'].append(thread)
+    return json.dumps(forums)

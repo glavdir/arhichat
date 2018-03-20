@@ -18,9 +18,11 @@
             </dropdown>
             <div class="panelFlex"> </div>
             <slot name="kong"></slot>
-            <div v-if="isAltPanel" class="panelOpenClose icon-cancel" @click = "closePanel">
+            <div v-if="isAltPanel" class="panelOpenClose icon-conteiner" @click = "closePanel">
+                <icon name = "close"></icon>
             </div>
-            <div v-if="!isAltPanel" class="panelOpenClose icon-right-open" @click = "openPanel">
+            <div v-if="!isAltPanel" class="panelOpenClose icon-conteiner icon-right-open" @click = "openPanel">
+                <icon name = "chevron-right"></icon>
             </div>
         </div>
         <div class="panelContent">
@@ -44,8 +46,6 @@
         },
         methods:{
 	        openMenu(){
-	            // this.$refs.dropdown.isHidden = false;
-                // console.log(this.$refs.dropdown);
             },
             updateURL(){
                 var queryPar = {};
@@ -64,18 +64,10 @@
             closePanel(){
 	            this.$store.commit('closePanel',{panel:this.panelName});
 	            this.updateURL();
-	            // this.$bus.$emit('panelResize');
-                // this.$nextTick(function () {
-                 //    global.set_chat_users_width();
-                // });
             },
             openPanel(){
 	            this.$store.commit('openPanel',{panel:this.altPanelName});
 	            this.updateURL();
-	            // this.$bus.$emit('panelResize');
-                // this.$nextTick(function () {
-                 //    global.set_chat_users_width();
-                // });
             },
         },
         mounted(){
@@ -104,8 +96,7 @@
         line-height: 2rem;
         color: white;
         flex: 1;
-        /*margin-left: 0.25rem;*/
-        /*margin-right: 0.25rem;*/
+        user-select: none;
     }
 
     .panelFlex{
@@ -116,10 +107,6 @@
 
     .panelContent{
         height: calc(100% - 2rem);
-        /*margin: 0.5rem;*/
-        /*box-sizing: border-box;*/
-        /*border: 1px solid lightgrey;*/
-        /*border-radius: 0.2rem;*/
     }
 
     .panelSelect-bp__btn{

@@ -37,7 +37,7 @@ def add_note(data):
     note.title = 'Новая заметка'
     db.session.add(note)
     db.session.commit()
-    return {'id':note.id, 'title':note.title[0:31]}
+    return {'id':note.id, 'title':note.title[0:31]} #Я забыл почему такое огранчиение на длину, кажется длина поля в бд
 
 
 @socketio.on('rename_note')

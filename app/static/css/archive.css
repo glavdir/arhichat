@@ -35,13 +35,13 @@
     color: #444;
 }
 
-.page_nav{
-        text-decoration: none;
-        width: 1rem;
-        display: inline-block;
-        text-align: center;
-        height: 100%;
-}
+/*.page_nav{*/
+        /*text-decoration: none;*/
+        /*width: 1rem;*/
+        /*display: inline-block;*/
+        /*text-align: center;*/
+        /*height: 100%;*/
+/*}*/
 
 .page_nav_input{
     border: none;

@@ -1,0 +1,45 @@
+.threads_root{
+    /*background: gray;*/
+    width: 100%;
+    height: 100%;
+    /*display: flex;*/
+    flex-direction: column;
+}
+
+.threads_conteiner{
+    width: 100%;
+    height: 100%;
+    /*calc(100% - 2.5rem);*/
+    outline:none;
+    display:flex;
+    padding: 0.5rem;
+    box-sizing:  border-box;
+}
+
+.threads_header{
+    /*flex: 0;*/
+    width: 100%;
+    height: 2.5rem;
+    display: flex;
+}
+
+.threads_forums{
+    width:100%;
+    overflow-y: auto;
+
+}
+
+/* .threads_forum {
+    display:flex;
+    flex-direction:
+} */
+
+.threads_forum_title{
+    display:inline-block;
+}
+
+.threads_forum_buttons{
+    display:inline-block;
+    position:relative;
+    left:10px;
+}
