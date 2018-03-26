@@ -115,7 +115,6 @@
 <template>
     <click-outside :handler="handleClickOutside">
         <div @keydown.esc="setSelectorVisible(false, true)" class="tags"
-             @keydown.down="processArrowKeyDown()" @keydown.up="processArrowKeyUp()"
        >
             <input type="text" ref="tags_input" placeholder="Тэги через пробел"
                    class="tags_input" v-model="inputText" >

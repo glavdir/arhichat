@@ -10,3 +10,5 @@ yarn-error.log
 *.ntvs*
 *.njsproj
 *.sln
+app/__pycache__/*
+__pycache__/*

@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import App from './App.vue'
 import store from './store.js'
+import '@voerro/vue-tagsinput/bootstrap.css';
 // import Global from './global.js'
 
 import moment from 'moment';
