@@ -23,6 +23,7 @@
     "vue": "^2.5.11",
     "vue-awesome": "^2.3.5",
     "vue-flash-message": "^0.4.1",
+    "vue-moment": "^3.2.0",
     "vue-multiselect": "^2.0.8",
     "vue-nav-tabs": "^0.5.6",
     "vue-router": "^3.0.1",
@@ -40,6 +41,7 @@
     "not ie <= 8"
   ],
   "devDependencies": {
+    "@voerro/vue-tagsinput": "^1.3.1",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",
