@@ -16,7 +16,7 @@
                     :existing-tags="allTagsDict"
                     :typeahead="true"
                     placeholder="Тэги"
-                    class="flex_container flex_element"
+                    class="flex_element"
                 ></tag-select>
             </div>
             <select ref="charSelect" v-model="currentChar" @change="selectCharacter" size="5"
@@ -41,13 +41,14 @@
             <div id="character_tags_container" class="flex_container thickLine" @keydown.esc="showTagSelector(false)">
                 <span class=" space_after v_center">Тэги</span>
                 <tag-select
-                    v-model="editData.newTags"
-                    :old-tags="editData.tags"
+                    ref="character_tags"
+                    v-model="editData.tags"
                     :existing-tags="allTagsDict"
                     :typeahead="true"
                     placeholder="Тэги"
-                    class="flex_container flex_element"
+                    class="flex_element"
                 ></tag-select>
+
             </div>
             <div v-if="editData.author" class="thickLine">
                 <span>Автор:</span>
@@ -63,6 +64,7 @@
                 </button>
 
             </div>
+
         </fieldset>
     </div>
 </template>
@@ -72,11 +74,8 @@
     import global from '../global.js';
     import Vue from 'vue';
     import diff_match_patch from 'diff-match-patch'
-    import tags_input from './tagsInput.vue'
     import tag_select from '@voerro/vue-tagsinput'
 
-
-    Vue.config.keyCodes.backspace = 8;
 
     function editDataDefault() {
         return {
@@ -85,14 +84,12 @@
             description: "",
             author: null,
             author_name: "",
-            tags: ['default'],
-            newTags: []
+            tags: []
         };
     }
 
     export default {
         components: {
-            'tags-input': tags_input,
             'tag-select': tag_select
         },
         data() {
@@ -190,7 +187,6 @@
             },
             setCharacterData: function (data) {
                 this.editData = data;
-                this.editData.tags.push('sometag')
             },
             resetEditData: function () {
                 this.editData = editDataDefault();
@@ -204,7 +200,6 @@
                         return;
                 }
                 if (this.editData.name.length == 0 || this.editData.description.length == 0) {
-//                    alert('Заполните поля "Имя" и "Описание" для сохранения персонажа');
                     this.flash('Заполните поля "Имя" и "Описание" для сохранения персонажа', 'error', {timeout: 2000})
                     return;
 
@@ -214,9 +209,7 @@
                 this.$socket.emit('save_character', {'Character': this.editData}, function (result) {
 
                     if (result) {
-//                        alert('Персонаж "' + name + '" успешно сохранен');
                         this_app.flash('Персонаж "' + name + '" успешно сохранен', 'success', {timeout: 2000})
-                        this_app.find_characters();
                         this_app.setCharacterData(JSON.parse(result));
                     }
                     else
@@ -228,8 +221,6 @@
             deleteCharacter: function () {
                 let this_app = this;
                 if (!this.currentChar) {
-//                    alert('Такого персонажа не существует. Персонаж не выбран или кто-то его уже удалил пока вы тупили. ' +
-//                        'Перезагрузите страницу');
                     this.flash('Такого персонажа не существует. Персонаж не выбран или кто-то его уже удалил пока вы тупили. ' +
                         'Перезагрузите страницу', 'error', {timeout: 2000})
                     return;
@@ -324,9 +315,9 @@
         font-size: 100%;
     }
 
-    .characterEdit_root .tags-input {
-        flex-grow: 2;
-    }
+    /*.characterEdit_root .tags-input {*/
+        /*flex-grow: 2;*/
+    /*}*/
 
     .characterEdit_root .input_field {
         border: 1px solid #ced4da;
@@ -334,8 +325,13 @@
         padding: 0.1rem 0.2rem;
     }
 
-    /* .characterEdit_root input[type="text"] {
-         padding: 0 0.1em;
+    .characterEdit_root .tags-input span {
+        margin-bottom: 0;
+    }
+
+     .characterEdit_root .tags-input-default-class {
+         padding: 0.1rem 0.2rem;
+         flex-grow: 1;
      }
 
 
