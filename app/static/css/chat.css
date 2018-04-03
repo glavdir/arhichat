@@ -5,7 +5,7 @@
 
 .tabActive{
     /*! text-decoration:underline; */
-    border-bottom: 2px solid #F36223;
+    border-bottom: 0.2rem solid #F36223;
 }
 
 .tabUser{
@@ -115,6 +115,7 @@
     font-style: inherit;
     margin-right: 0.5rem;
     word-break: break-word;
+    display: flex;
 }
 
 

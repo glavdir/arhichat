@@ -29,7 +29,7 @@
         </div>
     </div>
     <div class="dialog_archive_main">
-        <div class="dialog_archive_posts">
+        <div class="dialog_archive_posts" ref="posts">
             <div class='dialog_archive_container'>
                 <div  class="dialog_archive_replies">
                     <div class="reply" v-for = "(pst) in posts">
@@ -108,11 +108,13 @@
                             this_app.isSearchResult = this_app.searchString!='';
                             this_app.page = response.data.page;
 
-                            if (postid!=''){
-                                this_app.$nextTick( function(){
+                            this_app.$nextTick( function(){
+                                if (postid!=''){
                                     document.querySelector('div[data-postid="'+postid+'"]').scrollIntoView(true);
-                                });
-                            }
+                                }else{
+                                    this_app.$refs.posts.scrollTop = 0;
+                                }
+                            });
                         });
                 }else{
                     this_app.posts = [];

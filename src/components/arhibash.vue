@@ -11,7 +11,7 @@
             <medium-editor
                 class="arhibash_post"
                 :text='pagetext'
-                custom-tag='div'
+                custom-tag='p'
                 :options="editorOpts"
                 data-placeholder=" "
                 @edit="editBash($event)"
@@ -33,12 +33,14 @@
                 postid:'',
                 time:0,
                 editorOpts:{
-                    toolbar:{buttons:['bold','italic','underline','strikethrough']},
+                    toolbar:{buttons:['bold','italic','underline','strikethrough','removeFormat']},
                     paste:{
-                        forcePlainText:false,
+                        forcePlainText:true,
                         cleanPastedHTML:true,
                         cleanAttrs:['class', 'style', 'dir', 'text-align'],
-                        unwrapTags:['font']
+                        unwrapTags:['font','br'],
+                        cleanTags: ['label', 'meta'],
+                        cleanReplacements:[[/\n/g,'<br>']],
                     },
                 }
             }

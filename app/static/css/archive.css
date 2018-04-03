@@ -35,20 +35,30 @@
     color: #444;
 }
 
-/*.page_nav{*/
-        /*text-decoration: none;*/
-        /*width: 1rem;*/
-        /*display: inline-block;*/
-        /*text-align: center;*/
-        /*height: 100%;*/
-/*}*/
-
-.page_nav_input{
-    border: none;
-    text-align: center;
-    width: 12rem;
+.archive_main{
+    height: calc(100% - 6rem);
+    overflow-y: auto;
+    margin: 0.5rem;
+    box-sizing: border-box;
 }
 
-.search_link{
-    text-decoration: none;
+.archive_header{
+    display: flex;
+    width: 100%;
+}
+
+/*.archive_header_flex{flex: 1}*/
+
+
+.archive_footer{
+    height: 2.5rem;
+    box-sizing: border-box;
+    display: flex;
+    justify-content:space-between;
+}
+
+.msg-link{
+    cursor: pointer;
+    text-decoration: underline;
+    min-width: 4.2rem;
 }

@@ -5,14 +5,17 @@ from app import parser
 from app import clients
 from app import redis
 from app import db
+# from app import trs
 from sqlalchemy import orm
 from sqlalchemy import desc
 from sqlalchemy import or_
 from sqlalchemy import and_
 from app.matfilter import matfilter
+from app import usernames
 import time
 import json
 from collections import OrderedDict
+
 
 grouptags = []
 
@@ -26,6 +29,9 @@ def userlook(user):
     if user==None:
         return "Anonymous"
     else:
+        if user.userid in usernames:
+            return usernames[user.userid]
+
         groupid = user.displaygroupid
 
         if user.displaygroupid==0:
@@ -38,7 +44,11 @@ def userlook(user):
         else:
             username = user.username
 
+        # username = trs.to_eo(username)
+
         res = group.opentag + username + group.closetag
+
+        usernames[user.userid] = res
 
         return res
 
@@ -98,6 +108,20 @@ def get_username_byid(userid):
     else:
         return 'anonimous'
 
+def get_pm_users(userid):
+    result = db.session.execute('SELECT distinct s_private AS userid '
+                                'FROM  arhinfernoshout  WHERE  s_user = %s and s_private<>-1 '
+                                'UNION   '
+                                'SELECT distinct s_user AS userid    '
+                                'FROM  arhinfernoshout  WHERE  s_private = %s and s_user<>-1 ' % (userid,userid)).fetchall()
+    users = []
+    for user in result:
+        users.append({'userid':user.userid,'userlook':get_userlook_byid(user.userid)})
+
+    return users
+
+
+
 def get_adminpermissions(userid):
     user = models.arhuser.query.get(userid)
     adminpermissions = False
@@ -134,14 +158,28 @@ def msg(shout,original,action=''):
             for mat in mats:
                 s_shout = s_shout.replace(mat, "<span class='cens'>[цензура]</span><span class='mat'>%s</span>"%(mat))
 
+    # s_shout = trs.to_eo(s_shout)
+
     return {'msg': s_shout, 's_user':str(shout.s_user), 'user': userlook(shout.user), 'sid': shout.sid, 'me': shout.s_me, 'time': shout.s_time, 'color': s_color, 'pmid':shout.s_private, 'pmuser':get_username_byid(shout.s_private)}
 
-def get_last_messages(mstart=0,mfinish=msgcount,search_str='',userid=0):
-    if not search_str:
-        shouts = models.arhinfernoshout.query.filter((models.arhinfernoshout.s_private==-1)|(models.arhinfernoshout.s_private==userid)|(models.arhinfernoshout.s_user==userid)).order_by(desc("sid"))[mstart:mfinish]
-    else:
-        shouts = models.arhinfernoshout.query.filter_by(s_private=-1).filter(models.arhinfernoshout.s_shout.like('%'+ search_str +'%')).order_by(desc("sid"))[mstart:mfinish]
+def get_last_messages(mstart=0,mfinish=msgcount,search_str='',userid=0, pmid=-1):
+    # if not search_str:
+    #     shouts = models.arhinfernoshout.query.filter((models.arhinfernoshout.s_private==-1)|(models.arhinfernoshout.s_private==userid)|(models.arhinfernoshout.s_user==userid)).order_by(desc("sid"))[mstart:mfinish]
+    # else:
+    #     shouts = models.arhinfernoshout.query.filter_by(s_private=-1).filter(models.arhinfernoshout.s_shout.like('%'+ search_str +'%')).order_by(desc("sid"))[mstart:mfinish]
 
+    query = models.arhinfernoshout.query
+
+    if str(pmid)=='-1':
+        query = query.filter_by(s_private=-1)
+    else:
+        query = query.filter(or_(and_(models.arhinfernoshout.s_user == userid, models.arhinfernoshout.s_private == pmid),
+                                 and_(models.arhinfernoshout.s_user == pmid, models.arhinfernoshout.s_private == userid)))
+
+    if search_str:
+        query = query.filter(models.arhinfernoshout.s_shout.like('%'+ search_str +'%'))
+
+    shouts = query.order_by(desc("sid"))[mstart:mfinish]
     shouts.reverse()
     # msgs = []
     # for shout in shouts:
@@ -157,8 +195,15 @@ def get_last_messages(mstart=0,mfinish=msgcount,search_str='',userid=0):
 def get_last_message():
     return models.arhinfernoshout.query.filter_by().order_by(desc("sid")).first()
 
-def get_messages_count(search_str=''):
-    query_text = 'SELECT SUM(s_private = "-1") Count FROM arhinfernoshout'
+def pmid_filter(userid,pmid):
+    if str(pmid)=='-1':
+        return 's_private = "-1"'
+    else:
+        return '(s_private = "%(pmid)s" and s_user="%(userid)s") or (s_user = "%(pmid)s" and s_private="%(userid)s")'%{'pmid':pmid,'userid':userid}
+
+def get_messages_count(search_str='',userid=0, pmid=-1):
+    query_text = 'SELECT SUM('+pmid_filter(userid,pmid)+') Count FROM arhinfernoshout'
+
     if search_str:
         query_text=query_text+' '+'WHERE s_shout like "%'+ search_str +'%"'
 
@@ -207,8 +252,8 @@ def get_message_by_sid(sid,original):
     return True, msg(find_shout_by_sid(sid), original)
 
 
-def get_sid_number(sid):
-     return db.session.execute('SELECT SUM(s_private = "-1" and sid<=%s) Count FROM arhinfernoshout' % (sid)).first().Count
+def get_sid_number(sid,userid=0, pmid=-1):
+    return db.session.execute('SELECT SUM(('+pmid_filter(userid,pmid)+') and sid<=%s) Count FROM arhinfernoshout' % (sid)).first().Count
 
 def get_options_by_userid(userid):
     options = {'transport_switch':False,

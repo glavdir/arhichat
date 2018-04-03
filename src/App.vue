@@ -58,6 +58,7 @@
     import 'vue-awesome/icons/plus'
     import 'vue-awesome/icons/floppy-o'
     import 'vue-awesome/icons/expand'
+    import 'vue-awesome/icons/search'
 
     const router = new VueRouter({
         mode: 'history',

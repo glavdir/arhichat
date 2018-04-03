@@ -153,6 +153,7 @@
     /*! padding-bottom: 0.5rem; */
     box-sizing: border-box;
     /*! margin-bottom: -0.5rem; */
+    min-height: 8rem;
 }
 
 /*#dialog_text{*/

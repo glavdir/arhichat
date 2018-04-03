@@ -68,6 +68,8 @@ def archive():
     search_str  = request.args.get('search')
     page        = request.args.get('page')
     count       = request.args.get('count')
+    pmid        = request.args.get('pmid')
+    sid         = request.args.get('sid')
 
     if not search_str:
         search_str=''
@@ -85,15 +87,23 @@ def archive():
     if count>1000:
         count = 1000
 
-    total_msg_count = queries.get_messages_count(search_str)
+    total_msg_count = queries.get_messages_count(search_str,session['s_user'],pmid)
     page_count = get_page_by_number(total_msg_count,count)
+
+    if sid:
+        sid_number = queries.get_sid_number(sid,session['s_user'],pmid)
+        page = get_page_by_number(total_msg_count-sid_number,count)
 
     mfinish = count*page
     mstart  = mfinish - count
-    messages = list(queries.get_last_messages(mstart,mfinish,search_str).values())
-    result = {'messages':messages,'page_count':page_count}
+    messages = list(queries.get_last_messages(mstart,mfinish,search_str,session['s_user'],pmid).values())
+    result = {'messages':messages,'page_count':page_count, 'page':page}
 
     return json.dumps(result)
+
+@app.route('/api/archive_pmids/')
+def archive_pmids():
+    return json.dumps(queries.get_pm_users(session['s_user']))
 
 @app.route('/api/posts_archive/')
 def posts_archive():

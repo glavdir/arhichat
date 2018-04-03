@@ -2,8 +2,10 @@ from flask import session, request
 from flask_socketio import emit
 from app import socketio, db, queries, redis, shouts
 from app import commands
-from app import last_messages
+# from app import translate
 import json
+
+
 
 def emit_active_users(room=''):
     if not room:
@@ -41,6 +43,8 @@ def emit_one_message(action,message):
         msg = {'sid':message.sid, 'pmid':str(message.s_private)}
     else:
         msg = queries.msg(message, False)
+
+    # msg['msg'] = translate.translate(msg['msg'], 'eo')['text'][0]
 
     for room in rooms:
         socketio.emit('one_message', {'action':action, 'message':msg}, room=room)

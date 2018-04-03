@@ -16,10 +16,13 @@ import time
 msgcount = 35
 clients = {}
 default_color = '#0000ff'
+usernames = {}
 
 parser = cbbcodes.get_parser()
 post_parser = cbbcodes.get_post_parser()
 revision = time.time()
+
+import app.trs
 
 app = Flask(__name__)
 app.config.from_object('config')
@@ -34,6 +37,7 @@ cors = CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 from app import queries
 last_messages = queries.get_last_messages(userid=-1)
+
 
 socketio = SocketIO(app,
                     async_mode = async_mode,
@@ -50,3 +54,4 @@ from app import views, api, sql_characters, sql_posts, sql_threads, models, even
 
 db.create_all()
 db.session.commit()
+
