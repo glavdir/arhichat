@@ -18,12 +18,14 @@
     "bp-vuejs-dropdown": "^2.1.1",
     "diff-match-patch": "^1.0.0",
     "html2bbcode": "^1.2.5",
+    "npm": "^5.8.0",
     "onclick-outside": "^0.1.1",
     "socket.io-client": "^2.0.4",
     "trix-vue2": "^1.0.1",
     "vue": "^2.5.11",
     "vue-awesome": "^2.3.5",
     "vue-flash-message": "^0.4.1",
+    "vue-moment": "^3.2.0",
     "vue-multiselect": "^2.0.8",
     "vue-nav-tabs": "^0.5.6",
     "vue-quill-editor": "^3.0.5",
@@ -42,6 +44,7 @@
     "not ie <= 8"
   ],
   "devDependencies": {
+    "@voerro/vue-tagsinput": "^1.5.1",
     "babel-core": "^6.26.0",
     "babel-loader": "^7.1.2",
     "babel-plugin-syntax-dynamic-import": "^6.18.0",

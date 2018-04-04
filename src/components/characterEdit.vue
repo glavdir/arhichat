@@ -4,22 +4,21 @@
         <fieldset class="frame">
             <legend>Поиск</legend>
             <div class="flex_container thickLine">
-                <span class="space_after v_center">Имя</span><input type="text" maxlength="64" v-model="charFilter"
-                                                                    class="flex_element input_field v_center"
-                                                                    placeholder="Имя или его начало">
+                <span class="space_after v_center">Имя</span>
+                <input type="text" maxlength="64" v-model="charFilter"
+                       class="flex_element input_field"
+                       placeholder="Имя или его часть">
             </div>
             <div class="flex_container thickLine">
                 <span class="space_after v_center">Тэги</span>
-                <tags-input class="flex_element v_center"
-                            :fullTagList="allTags"
-                            v-model="tagsFilter"
-                            maxlength="64"
-                            placeholder="Тэги через пробел"/>
+                <tag-select
+                    v-model="tagsFilter"
+                    :existing-tags="allTagsDict"
+                    :typeahead="true"
+                    placeholder="Тэги"
+                    class="flex_element"
+                ></tag-select>
             </div>
-            <!--<div class="flex_container thickLine">-->
-                <!--<div class="flex_element"></div>-->
-                <!--<button @click="find_characters">Найти</button>-->
-            <!--</div>-->
             <select ref="charSelect" v-model="currentChar" @change="selectCharacter" size="5"
                     class="full_width thickLine">
                 <option v-for="ch in filteredCharacters" v-bind:value="ch.id">{{ ch.name }}</option>
@@ -41,11 +40,15 @@
             </div>
             <div id="character_tags_container" class="flex_container thickLine" @keydown.esc="showTagSelector(false)">
                 <span class=" space_after v_center">Тэги</span>
-                <tags-input class="flex_element v_center"
-                            :fullTagList="allTags"
-                            v-model="editData.tags"
-                            maxlength="64"
-                            placeholder="Тэги через пробел"/>
+                <tag-select
+                    ref="character_tags"
+                    v-model="editData.tags"
+                    :existing-tags="allTagsDict"
+                    :typeahead="true"
+                    placeholder="Тэги"
+                    class="flex_element"
+                ></tag-select>
+
             </div>
             <div v-if="editData.author" class="thickLine">
                 <span>Автор:</span>
@@ -61,6 +64,7 @@
                 </button>
 
             </div>
+
         </fieldset>
     </div>
 </template>
@@ -70,7 +74,8 @@
     import global from '../global.js';
     import Vue from 'vue';
     import diff_match_patch from 'diff-match-patch'
-    import tags_input from './tagsInput.vue'
+    import tag_select from '@voerro/vue-tagsinput'
+
 
     function editDataDefault() {
         return {
@@ -85,17 +90,18 @@
 
     export default {
         components: {
-            'tags-input': tags_input
+            'tag-select': tag_select
         },
         data() {
             return {
                 currentChar: "",
                 charList: [],
                 charFilter: "",
-                tagsFilter: [],
+                tagsFilter: null,
                 tagPattern: "[\\s0-9a-zA-Zа-яА-Я_]+",
                 editData: editDataDefault(),
-                allTags: []
+                allTags: [],
+                allTagsDict: {}
             }
         },
         created() {
@@ -105,11 +111,9 @@
         },
         computed: {
             filteredCharacters: function () {
-
-                var tFilter = this.remove_empty_elements(this.tagsFilter)
                 var nameFilter = this.charFilter.trim()
                 var filterName = nameFilter.length > 0
-                var filterTags = tFilter.length > 0
+                var filterTags = this.tagsFilter
 
                 if (!filterName && !filterTags) {
                     return this.charList;
@@ -119,15 +123,15 @@
                 for (var c in this.charList) {
                     var character = this.charList[c]
                     if (filterName && character.name.toLowerCase().includes(nameFilter.toLowerCase())) {
-                        if(!filtered.includes(character))
+                        if (!filtered.includes(character))
                             filtered.push(character)
                         continue
                     }
                     if (filterTags) {
                         var suits = true
 
-                        for (var tag in tFilter) {
-                            if (!character.tags.includes(tFilter[tag])) {
+                        for (var i in this.tagsFilter) {
+                            if (!character.tags.includes(this.tagsFilter[i])) {
                                 suits = false;
                                 break;
                             }
@@ -143,7 +147,7 @@
         methods: {
             remove_empty_elements: function (stringlist) {
                 var newList = []
-                for(var s in stringlist){
+                for (var s in stringlist) {
                     if (stringlist[s] != '')
                         newList.push(stringlist[s])
                 }
@@ -169,38 +173,6 @@
                     }
                 }
             },
-//            filter_characters: function()
-//            {
-//                var filterName = this.charFilter.length > 0
-//                var filterTags = this.tagsFilter.length > 0
-//
-//                if(!filterName && !filterTags) {
-//                    return this.charList;
-//                }
-//
-//                var filtered = []
-//                for(var character in this.charList)
-//                {
-//                    if(filterName && character.includes(this.charFilter)){
-//                        filtered.push(character)
-//                        continue
-//                    }
-//                    if(filterTags)
-//                    {
-//                        var suits = true
-//                        for(var tag in this.tagsFilter)
-//                        {
-//                            if(!character.tags.includes(tag)){
-//                                suits = false;
-//                                break;
-//                            }
-//                            if(suits)
-//                                filtered.push(character)
-//                        }
-//                    }
-//                }
-//                return filtered;
-//            },
             selectCharacter: function () {
                 if (!this.currentChar || this.currentChar.length == 0) {
                     this.editData = editDataDefault()
@@ -221,40 +193,42 @@
                 this.currentChar = null
             },
             saveChanges: function (data) {
+                let this_app = this;
                 if (this.currentChar) {
                     var currentCharText = this.$refs['charSelect'].options[this.$refs['charSelect'].selectedIndex].text;
                     if (!window.confirm('Вы точно хотите изменить персонажа "' + currentCharText + '"?'))
                         return;
                 }
                 if (this.editData.name.length == 0 || this.editData.description.length == 0) {
-                    alert('Заполните поля "Имя" и "Описание" для сохранения персонажа');
+                    this.flash('Заполните поля "Имя" и "Описание" для сохранения персонажа', 'error', {timeout: 2000})
                     return;
+
                 }
                 this.editData.tags = this.remove_empty_elements(this.editData.tags)
                 var name = this.editData.name
-                var this_app = this;
                 this.$socket.emit('save_character', {'Character': this.editData}, function (result) {
 
                     if (result) {
-                        alert('Персонаж "' + name + '" успешно сохранен');
-                        this_app.find_characters();
+                        this_app.flash('Персонаж "' + name + '" успешно сохранен', 'success', {timeout: 2000})
                         this_app.setCharacterData(JSON.parse(result));
                     }
                     else
-                        alert('Упс! Не получилось создать персонажа "' + name + '"');
+                        this_app.flash('Упс! Не получилось создать персонажа "' + name + '"', 'error', {timeout: 2000})
+//                        alert('Упс! Не получилось создать персонажа "' + name + '"');
+
                 })
             },
             deleteCharacter: function () {
+                let this_app = this;
                 if (!this.currentChar) {
-                    alert('Такого персонажа не существует. Персонаж не выбран или кто-то его уже удалил пока вы тупили. ' +
-                        'Перезагрузите страницу');
+                    this.flash('Такого персонажа не существует. Персонаж не выбран или кто-то его уже удалил пока вы тупили. ' +
+                        'Перезагрузите страницу', 'error', {timeout: 2000})
                     return;
                 }
                 var currentCharText = this.$refs['charSelect'].options[this.$refs['charSelect'].selectedIndex].text;
                 console.log(currentCharText)
                 if (window.confirm('Вы точно хотите удалить персонажа "' + currentCharText + '"?')) {
                     if (window.confirm('Если потом передумаете придётся восстанавливать вручную. Точно удалять?')) {
-                        var this_app = this
                         this.$socket.emit('delete_character', {'Character': this.currentChar},
                             function (result) {
                                 console.log(result)
@@ -264,7 +238,9 @@
                                     this_app.find_characters();
                                 }
                                 else
-                                    alert('Упс! Что-то пошло не так. Персонаж "' + currentCharText + '" не был удалён');
+                                    this_app.flash('Упс! Что-то пошло не так. Персонаж "' + currentCharText + '" не был удалён',
+                                        'error', {timeout: 2000})
+//                                    alert('Упс! Что-то пошло не так. Персонаж "' + currentCharText + '" не был удалён');
                             });
                     }
                 }
@@ -277,19 +253,19 @@
 
             character_tags(data) {
                 this.allTags = JSON.parse(data)
+                for (var tag in this.allTags) {
+                    this.allTagsDict[this.allTags[tag]] = this.allTags[tag];
+                }
             }
         }
     }
 </script>
 
 <style scoped>
+
+
     .characterEdit_root {
         padding: 0.5em;
-    }
-
-    input_field {
-        border: 1px solid gray;
-        padding: 0 0.1em;
     }
 
     .flex_container {
@@ -301,7 +277,7 @@
     }
 
     .flex_element {
-        flex-grow: 2;
+        flex-grow: 1;
     }
 
     .full_width {
@@ -325,10 +301,53 @@
         margin: auto;
     }
 
+
 </style>
 
 <style>
-    .characterEdit_root input[type="text"] {
-        padding: 0 0.1em;
+
+    .characterEdit_root .form-control {
+        padding: 0.1rem 0.2rem;
+        width: inherit;
     }
+
+    .characterEdit_root .badge-light {
+        font-size: 100%;
+    }
+
+    /*.characterEdit_root .tags-input {*/
+        /*flex-grow: 2;*/
+    /*}*/
+
+    .characterEdit_root .input_field {
+        border: 1px solid #ced4da;
+        border-radius: 0.25rem;
+        padding: 0.1rem 0.2rem;
+    }
+
+    .characterEdit_root .tags-input span {
+        margin-bottom: 0;
+    }
+
+     .characterEdit_root .tags-input-default-class {
+         padding: 0.1rem 0.2rem;
+         flex-grow: 1;
+     }
+
+
+
+
+ /*
+     .tags-input{
+         display: flex;
+         flex-wrap: wrap;
+         align-items: center;
+     }
+     .tags-input .badge{
+         background-color: #f0f0f0;
+         border-radius: 6px;
+         padding: 0.1rem 0.2rem;
+     }*/
+
+
 </style>
