@@ -10,6 +10,8 @@ class arhuser(db.Model):
     usergroupid     = db.Column(db.SmallInteger, db.ForeignKey('arhusergroup.usergroupid'))
     displaygroupid  = db.Column(db.SmallInteger, db.ForeignKey('arhusergroup.usergroupid'))
     membergroupids  = db.Column(db.String)
+    password        = db.Column(db.String)
+    salt            = db.Column(db.String)
     lastactivity    = db.Column(db.Integer, index = False, unique = False)
     username = db.Column(db.String(100), index = True, unique = True)
     shouts = db.relationship('arhinfernoshout', backref='user', lazy='dynamic')

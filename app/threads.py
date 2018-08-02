@@ -1,6 +1,15 @@
 from flask import session, request
-from app import socketio, sql_threads
+from app import app, socketio, sql_threads
 import json
+
+@app.route('/api/forums/')
+def forums():
+    threads = sql_threads.get_threadlist()
+    forums = sql_threads.get_forums()
+    # for thread in threads:
+    #     forums[thread['forumid']]['threads'].append(thread)
+    return json.dumps(forums)
+
 
 @socketio.on('save_forum')
 def add_note(data):

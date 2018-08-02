@@ -9,6 +9,7 @@
                 <div
                      v-for="(tab, index) in tabs"
                      :key="tab.id"
+                     :data-noteid="tab.id"
                      :class="[tab.id === curTab ? 'notes_tab notes_tab_active' : 'notes_tab']"
                      @click="tabActivate(tab)"
                      @dblclick.prevent="tabEdit(tab)"
@@ -36,7 +37,7 @@
     import diff_match_patch from 'diff-match-patch'
     var dmp = new diff_match_patch.diff_match_patch();
 
-    import editor from 'vue2-medium-editor';
+    import editor from '../MediumEditor.js';
 
     import Vue from 'vue'
     import VueDND from 'awe-dnd'
@@ -46,11 +47,14 @@
     export default {
         data: function () {
             return {
-                tabs: [],//{id:0,title:'Общие',editing:false}
+                tabs: [],
                 curTab:'',
                 noteText:'',
                 editorOpts:{
-                    toolbar:{buttons:['bold','italic','underline','strikethrough']},
+                    toolbar:{
+                        buttons:['bold','italic','underline','strikethrough','removeFormat'],
+                        diffTop: (this.$isMobile.any) ? -50 : -10
+                    },
                     paste:{
                         forcePlainText:false,
                         cleanPastedHTML:true,

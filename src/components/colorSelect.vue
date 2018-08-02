@@ -57,7 +57,7 @@
 .colorlist{
     position: absolute;
     bottom: calc(100% + 1px);
-    left: -200%;
+    /*left: -200%;*/
     border: 1px solid lightgray;
     padding: 2px;
     background: white;
@@ -68,10 +68,11 @@
     position: relative;
     line-height: 2rem;
     font-weight: bold;
+    margin-bottom: auto;
 }
 
 .colorLine{
-    width: 1.5rem;
+    width: 1.3rem;
     height: 0.3rem;
     margin: auto;
 }
@@ -85,8 +86,8 @@
     background: transparent;
     margin: 0 auto;
     text-align: center;
-    margin-top: 0.1rem;
-    height: 1.7rem;
+    margin-top: 0.25rem;
+    height: 1.5rem;
 }
 
 </style>

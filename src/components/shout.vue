@@ -1,15 +1,15 @@
 <template>
     <div class="shout" v-bind="{'data-sid': sid}"><!--
-        --><span v-if="me!='0'">*</span><!--
+        --><span class="me_stars" v-if="me!='0'">*</span><!--
         --><span class="time_user"><!--
         --><span v-if="me=='0'" class="time" v-html="'['+datetime(time)+'] '"></span><!--datetime
         --><span class="user"
                     v-bind="{'data-pmid':s_user}"
                     v-html="user"
                     @click="tabOnClick(s_user)"
-            ></span><a v-if="me=='0'">:</a></span>
+            ></span><a v-if="me=='0'"><span class="dots">:</span></a></span>
             <span class="msg_text" v-bind="{'id':'span'+sid, 'style':'color:'+color}" v-html="msg"></span><!--
-        --><span v-if="me!='0'">*</span>
+        --><span class="me_stars" v-if="me!='0'">*</span>
     </div>
 </template>
 

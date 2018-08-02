@@ -4,6 +4,7 @@ from flask_socketio import emit, join_room
 import datetime
 from app import events_chat,events_dialog,queries,shouts
 
+
 def on_connect():
     try:
         api.auth()
@@ -34,9 +35,11 @@ def on_connect():
     events_chat.emitlastmessages(-1,request.sid)
     events_chat.emit_active_users(room=session.get('room'))
 
+
 @socketio.on('connect')
 def connect():
     on_connect()
+
 
 @socketio.on('disconnect')
 def disconnect():
@@ -47,7 +50,8 @@ def disconnect():
         del clients[request.sid]
     # socketio.close_room(request.sid)
 
-    # events_chat.emit_active_users(room=session.get('room'))
+    events_chat.emit_active_users(room=session.get('room'))
+
 
 @socketio.on('reconnect')
 def reconnect():
@@ -55,10 +59,12 @@ def reconnect():
     # events_chat.emitlastmessages(-1,request.sid)
     on_connect()
 
+
 @socketio.on('error')
 def error():
     print(str(datetime.datetime.now())+' error-' + str(request.sid))
     on_connect()
+
 
 @socketio.on_error_default  # handles all namespaces without an explicit error handler
 def default_error_handler(e):
@@ -70,6 +76,7 @@ def default_error_handler(e):
 #     # join_room('myroom')
 #     # return None
 #     emit('kong',room=request.sid)
+
 
 @socketio.on('save_option')
 def save_option(data):

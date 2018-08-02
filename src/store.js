@@ -24,7 +24,7 @@ const store = new Vuex.Store({
         },
         users: [{userid: -1, userlook: 'ЧАТ', online: true, unread: false}],
         unreads: [],
-        curuserid: 0,
+        curuserid: '',
         timezoneoffset:0,
         revision:'',
         panels:{
@@ -34,7 +34,7 @@ const store = new Vuex.Store({
             rightLast:'Dialog',
         },
         // threads:[],
-        lastThreadid:0
+        lastThreadid:0,
     },
     mutations: {
         setPanel(state, data){
@@ -119,7 +119,7 @@ const store = new Vuex.Store({
         },
         setLastThreadid(state,threadid){
             state.lastThreadid = threadid;
-        }
+        },
     },
     computed: {
 

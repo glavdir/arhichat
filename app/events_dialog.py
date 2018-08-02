@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
-from flask import session, request
-from flask_socketio import emit, join_room, leave_room, rooms
-from app import socketio, sql_posts, models, db, queries, sql_threads, api, default_color, events_chat, redis, shouts, post_parser
-import json, datetime, time
-import diff_match_patch
+import json
+import datetime
 import requests
+import diff_match_patch
+
+from flask import session, request
+from flask_socketio import emit, join_room, leave_room
+from app import socketio, sql_posts, models, sql_threads, api, default_color, events_chat, redis, shouts
 
 dmp = diff_match_patch.diff_match_patch()
 
@@ -36,7 +38,7 @@ def dialog_text(message):
     userid = session['s_user'] if session['s_user'] else 0
     newshout = shouts.do_newshout(userid, 'ответил(а) на канале [dialog=%(dialog_id)s]%(title)s[/dialog]' % {'dialog_id':threadid, 'title':sql_threads.get_thread_title(threadid)}, '1', -1, threadid)
 
-    emit('dialog_message', {'pagetext': pagetext, 'color':color, 'postid':postid},room=dlg_room(session.get('chn')), namespace=cur_namespace)
+    emit('dialog_message', {'pagetext': pagetext, 'color':color, 'postid':postid, 'comments':[]},room=dlg_room(session.get('chn')), namespace=cur_namespace)
 
     if delsid!=0:
         del_shout = models.arhinfernoshout()
@@ -46,10 +48,30 @@ def dialog_text(message):
 
     events_chat.emit_one_message('new',newshout)
 
+@socketio.on('send_comment', namespace=cur_namespace)
+def send_comment(message):
+    threadid = str(message['threadid'])
+    session['chn'] = threadid
+    msg = message['msg']
+    color = message['color']
+
+    commentdata = {'postid': message['postid'],
+                   'userid': session['s_user'],
+                   'threadid': session['chn'],
+                   'color': color,
+                   'text': msg}
+
+    sql_posts.save_comment(commentdata)
+    emit('dialog_comment', commentdata, room=dlg_room(session.get('chn')),namespace=cur_namespace)
+
+
 
 def bb_msg(color, text):
     return text
-    # return "[color=%s]%s[/color]"%(color,text)
+
+def refresh_forum():
+    reqText = "http://arhimag.org/rebuild.php?threadid=%s"%session['chn']
+    req = requests.get(reqText, headers={'Content-Type': 'application/json'})
 
 def save_reply(reply, color):
     postid, pagetext_html, time = sql_posts.save_post({'postid':'',
@@ -58,44 +80,10 @@ def save_reply(reply, color):
                                                  'color': color,
                                                  'pagetext':bb_msg(color,reply)
                                                  })
-    # newpost = sql_posts.arhpost()
-    #
-    # newpost.threadid   = session['chn']
-    # newpost.userid     = session['s_user']
-    # newpost.dateline   = int(time.time())
-    # newpost.pagetext   = bb_msg(color,reply)
-    # newpost.allowsmilie = 1
-    # newpost.showsignature = 1
-    # newpost.visible = 1
-    # newpost.color = color
-    #
-    # db.session.add(newpost)
-    # db.session.commit()
-    #
-    # newpostparsed = sql_posts.arhpostparsed()
-    # newpostparsed.postid = newpost.postid
-    # newpostparsed.dateline   = newpost.dateline
-    # newpostparsed.pagetext_html   =   post_parser.format(newpost.pagetext) #"<font color='%s'>%s</font>"%(color,reply)
-    # db.session.add(newpostparsed)
-    # db.session.commit()
-
-    reqText = "http://arhimag.org/rebuild.php?threadid=%s"%session['chn']
-    req = requests.get(reqText, headers={'Content-Type': 'application/json'})
-    # print(reqText, req.status_code, req.text)
+    refresh_forum()
     return postid, pagetext_html
 
 def change_reply(message):
-    # reply = models.dialogs.query.filter_by(id=message['id']).first()
-    # reply.reply = message['msg']
-
-    # post = sql_posts.arhpost().query.filter_by(postid=message['id']).first()
-    # # post.pagetext   = "[color=%s]%s[/color]"%(post.color,message['msg'])
-    # post.pagetext = bb_msg(message['color'],message['msg'])
-    #
-    # postparsed = sql_posts.arhpostparsed().query.filter_by(postid=message['id']).first()
-    # postparsed.pagetext_html = post_parser.format(post.pagetext) #"<font color='%s'>%s</font>"%(color,reply)
-    # db.session.commit()
-
     postid, pagetext_html, time = sql_posts.save_post({'postid':message['id'],
                                                  'pagetext':bb_msg(message['color'],message['msg']),
                                                  'color':message['color']
@@ -120,8 +108,18 @@ def dialog_preview(message):
 def diff(data):
     threadid = session.get('chn')
     user_id = session.get('s_user')
-    # threading.Thread(target=save_diffs, args=(data, threadid, user_id))
-    emit('diff', {'userid': user_id, 'diffs': data['diffs'], 'color': data['color']}, room=dlg_room(session.get('chn')), broadcast=True, include_self=False)
+
+    if 'color' in data:
+        color = data['color']
+    else:
+        color = ''
+
+    if 'isCommenting' in data:
+        isCommenting = data['isCommenting']
+    else:
+        isCommenting = False
+
+    emit('diff', {'userid': user_id, 'diffs': data['diffs'], 'color': color, 'isCommenting':isCommenting}, room=dlg_room(session.get('chn')), broadcast=True, include_self=False)
     save_diffs(data, threadid, user_id)
 
 def save_diffs(data, threadid, user_id):
@@ -132,8 +130,18 @@ def save_diffs(data, threadid, user_id):
     else:
         text = ''
 
+    if 'color' in data:
+        color = data['color']
+    else:
+        color = ''
+
+    if 'isCommenting' in data:
+        isCommenting = data['isCommenting']
+    else:
+        isCommenting = False
+
     msg, nottext = dmp.patch_apply(dmp.patch_fromText(data['diffs']),text)
-    pr_msg = {'userid': user_id, 'msg': msg, 'color': data['color']}
+    pr_msg = {'userid': user_id, 'msg': msg, 'color': color, 'isCommenting':isCommenting}
     redis.hset('dlg_%s'%threadid,'usr_%s'%user_id, pr_msg)
 
 def get_previews(threadid):
@@ -150,6 +158,11 @@ def dialog_change(message):
     html_msg =  change_reply(message)
     emit('dialog_change_commit', {'msg': html_msg, 'id':message['id'] },room=dlg_room(session.get('chn')), broadcast=True, include_self=False)
 
+@socketio.on('del_post', namespace=cur_namespace)
+def del_post(message):
+    postid = sql_posts.del_post(message)
+    emit('post_deleted', {'postid': postid},room=dlg_room(session.get('chn')), broadcast=True, include_self=True)
+    refresh_forum()
 
 @socketio.on('set_color', namespace=cur_namespace)
 def set_color(message):
@@ -206,6 +219,14 @@ def get_colors():
         colors = json.loads(colors_str)
     return colors
 
+@socketio.on('set_noteID', namespace=cur_namespace)
+def set_noteID(message):
+    redis.hset('noteID',message['threadid'],message['noteID'])
+
+def get_noteID(threadid):
+    return redis.hget('noteID', threadid)
+
+
 def get_thread_color(threadid):
     colors = get_colors()
     key = color_key(threadid)
@@ -214,6 +235,16 @@ def get_thread_color(threadid):
     else:
         return colors['default']
 
+def get_thread_is_comment(threadid):
+    isCommenting=False
+    inRedis = redis.hget(opts_key(), 'is_commenting_'+str(threadid))
+    if inRedis:
+        isCommenting = inRedis=='True'
+    return isCommenting
+
+@socketio.on('set_commenting', namespace=cur_namespace)
+def set_commenting(message):
+    redis.hset(opts_key(), 'is_commenting_'+str(message['threadid']), message['isCommenting'])
 
 def set_thread_color(threadid, color):
     colors = get_colors()
@@ -225,7 +256,12 @@ def set_thread_color(threadid, color):
     redis.hset(opts_key(), 'colors', json.dumps(colors))
 
 def get_thread(threadid):
-    return {'posts': sql_posts.get_lastposts(threadid),'color': get_thread_color(threadid), 'is_favorite':is_favorite_thread(threadid), 'previews':get_previews(threadid)}
+    return {'posts': sql_posts.get_lastposts(threadid),
+            'color': get_thread_color(threadid),
+            'is_favorite':is_favorite_thread(threadid),
+            'previews':get_previews(threadid),
+            'noteID':get_noteID(threadid),
+            'is_commenting':get_thread_is_comment(threadid)}
 
 @socketio.on('dialog_refresh', namespace=cur_namespace)
 def dialog_refresh(message):

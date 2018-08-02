@@ -1,12 +1,13 @@
 from app import models, db, post_parser
 from sqlalchemy import desc
+from sqlalchemy import and_
 import time
 
 class arhpost(db.Model):
-    postid       = db.Column(db.SmallInteger, primary_key = True)
+    postid       = db.Column(db.Integer, primary_key = True)
     threadid     = db.Column(db.SmallInteger, primary_key = False)
     pagetext     = db.Column(db.Text, index = False, unique = False)
-    userid       = db.Column(db.Integer)
+    userid       = db.Column(db.Integer, db.ForeignKey('arhuser.userid'))
     dateline     = db.Column(db.Integer)
     color        = db.Column(db.CHAR(16), index=False, unique=False)
 
@@ -14,6 +15,17 @@ class arhpost(db.Model):
     showsignature   = db.Column(db.SmallInteger, primary_key=False)
     visible         = db.Column(db.SmallInteger, primary_key=False)
 
+    comments = db.relationship('post_comments', backref='post', lazy='joined')
+    # user = db.relationship('arhuser', foreign_keys=userid, lazy='joined')
+
+class post_comments(db.Model):
+    postid       = db.Column(db.Integer, db.ForeignKey('arhpost.postid'))
+    sid          = db.Column(db.SmallInteger, primary_key = True, unique = True)
+    text         = db.Column(db.Text, index = False, unique = False)
+    userid       = db.Column(db.Integer, db.ForeignKey('arhuser.userid'))
+    dateline     = db.Column(db.Integer)
+    color        = db.Column(db.CHAR(16), index=False, unique=False)
+    user         = db.relationship('arhuser', foreign_keys=userid, lazy='joined')
 
 class arhpostparsed(db.Model):
     postid        = db.Column(db.SmallInteger, primary_key = True)
@@ -21,10 +33,10 @@ class arhpostparsed(db.Model):
     dateline      = db.Column(db.Integer)
 
 def get_lastposts(threadid, numposts=10, postid=0, direction='last'):
-    query =  arhpost.query.filter_by(threadid=threadid)
+    query =  arhpost.query.filter_by(threadid=threadid).filter_by(visible=1)
 
     if direction!='next':
-        query = query.order_by(desc("postid"))
+        query = query.order_by(desc(arhpost.postid))
 
     if direction=='next':
         query = query.filter(arhpost.postid>postid)
@@ -36,11 +48,28 @@ def get_lastposts(threadid, numposts=10, postid=0, direction='last'):
     resPosts=[]
     for post in reversed(lastposts):
         pagetext = post_parser.format(post.pagetext)
-        resPosts.append({'time':post.dateline,'userid':post.userid, 'postid':post.postid,'pagetext':pagetext, 'color':post.color})
+        comments = []
+        for comm in post.comments:
+            comments.append({'sid':comm.sid,
+                             'userid': comm.userid,
+                             'username': comm.user.username,
+                             'text': comm.text,
+                             'dateline': comm.dateline,
+                             'color': comm.color
+                             })
+        resPosts.append({'time':post.dateline,'userid':post.userid, 'postid':post.postid,'pagetext':pagetext, 'color':post.color, 'comments':comments})
 
     return resPosts
 
 def get_posts(threads, mstart=0, count=25, search=''):
+    # query = arhpost.query
+    # query = query.filter(and_(arhpost.threadid in (threads),arhpost.visible))
+    #
+    # if search:
+    #     query = query.filter(arhpost.pagetext.like('%'+ search +'%'))
+    #
+    # lastposts = query.order_by("postid")[mstart:count]
+
     qstring = 'SELECT ' \
               ' post.dateline,' \
               ' post.postid,' \
@@ -48,7 +77,7 @@ def get_posts(threads, mstart=0, count=25, search=''):
               ' post.userid,' \
               ' post.pagetext ' \
               'FROM arhpost post ' \
-              'WHERE threadid in('+threads+') and post.pagetext like "%'+search+'%"' \
+              'WHERE threadid in('+threads+') and visible and post.pagetext like "%'+search+'%"' \
               'ORDER BY postid ' \
               'LIMIT '+str(mstart)+','+str(count)+''
 
@@ -88,6 +117,12 @@ def save_post(data):
 
     return post.postid,pagetext_html,post.dateline
 
+def del_post(data):
+    post = arhpost().query.filter_by(postid=data['postid']).first()
+    post.visible = 0
+    db.session.commit()
+
+    return data['postid']
 
 def get_posts_count(threads, search=''):
     qstring = 'SELECT COUNT(post.postid) AS posts_count FROM arhpost post WHERE threadid in('+threads+') and post.pagetext like "%'+search+'%"'
@@ -97,12 +132,19 @@ def get_post_number(threads, postid):
     return db.session.execute(
         'SELECT COUNT(post.postid) Count FROM arhpost post WHERE threadid in('+threads+') and postid<=%s' % (postid)).first().Count
 
-    # query_text = 'SELECT SUM(1) Count FROM arhpost '
-    # if search_str:
-    #     query_text=query_text+' '+'WHERE s_shout like "%'+ search_str +'%"'
-    #
-    # res = db.session.execute(query_text).first().Count
-    # if not res:
-    #     res = 0
-    #
-    # return res
+
+def save_comment(data):
+    newcomment = post_comments()
+    newcomment.postid   = int(data['postid'])
+    newcomment.userid   = data['userid']
+    newcomment.text     = data['text']
+    newcomment.color    = data['color']
+    newcomment.dateline = int(time.time())
+    db.session.add(newcomment)
+    db.session.commit()
+
+    data['sid'] = newcomment.sid
+    data['dateline'] = newcomment.dateline
+    data['username'] = newcomment.user.username
+
+    return newcomment.sid

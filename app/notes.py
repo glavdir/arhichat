@@ -29,6 +29,11 @@ def get_notes_list():
 
     return notes
 
+def add_to_note(id, text):
+    old_note = get_note_text(id)
+    new_note = text + '<br><br>' + old_note
+    redis.set('note_%s' % id, new_note)
+
 @socketio.on('add_note')
 def add_note(data):
     note= models.notes()

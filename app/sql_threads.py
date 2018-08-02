@@ -90,11 +90,17 @@ def get_forums():
                                     '   isRoot DESC,'
                                     '   displayorder'%keys).fetchall()
 
-    forums = {}
-
+    forums = []
+    order = 0
     for forum in forumlist:
-        forums[forum.forumid] = forumDict(forum)
+        # forums[forum.forumid] = forumDict(forum)
+        # forums[forum.forumid]['order'] = order
 
+        fd = forumDict(forum)
+        fd['order'] = order
+        forums.append(fd)
+
+        order=order+1
     return forums
 
 def forumDict(forum):

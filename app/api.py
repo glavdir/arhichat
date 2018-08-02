@@ -1,35 +1,61 @@
 # -*- coding: utf-8 -*-
 
-from app import app, queries, sql_posts, sql_threads, events_dialog, notes, shouts
 from flask import session, request, json
+from app import app, queries, sql_posts, sql_threads, events_dialog, notes, shouts
 from app import revision
 
-def auth():
-    session['s_user'] = request.cookies.get('bbuserid')
-    if not session['s_user']:
-        bbsession = request.cookies.get('bbsessionhash')
-        if bbsession:
-            session['s_user'] = str(queries.get_user_id_by_session(bbsession))
+def auth(userid = '0'):
+    if userid!='0':
+        session['s_user'] = userid
+    else:
+        userid = request.cookies.get('bbuserid')
+        if not userid:
+            bbsession = request.cookies.get('bbsessionhash')
+            if bbsession:
+                userid = str(queries.get_user_id_by_session(bbsession))
+
+        bbpassword = request.cookies.get('bbpassword')
+        user = queries.get_user_by_userid(userid)
+
+        if user!=None and queries.md5(user.password)==bbpassword:
+            session['s_user'] = userid
+        else:
+            session['s_user'] = '0'
 
     session['name'] = 'myname'
     session['room'] = 'myroom'
 
+@app.route('/api/do_auth/', methods=["POST"])
+def do_auth():
+    username = request.args.get('username')
+    password = request.args.get('userpass')
+    authdata = queries.login(username,password)
+
+    if authdata['userid']!=0:
+        auth(authdata['userid'])
+
+    return json.dumps(authdata)
+
+@app.route('/api/user_auth/')
+def user_auth():
+    auth()
+
+    if session['s_user']!='0':
+        userinfo = queries.get_user_by_userid(session['s_user'])
+        timezoneoffset = userinfo.timezoneoffset
+    else:
+        timezoneoffset = 0
+
+    return json.dumps({
+        'userid':session.get('s_user'),
+        'timezoneoffset':timezoneoffset,
+        'opts': queries.get_options_by_userid(userid=session['s_user']),
+        })
 
 @app.route('/api/last_messages/')
 def last_messages():
     auth()
     return json.dumps(shouts.get_array_last_messages())
-
-@app.route('/api/user_auth/')
-def user_auth():
-    auth()
-    userinfo = queries.get_user_by_userid(session['s_user'])
-
-    return json.dumps({
-        'userid':session.get('s_user'),
-        'timezoneoffset':userinfo.timezoneoffset,
-        'opts': queries.get_options_by_userid(userid=session['s_user']),
-        })
 
 @app.route('/api/users/')
 def users():
@@ -62,6 +88,18 @@ def get_page_by_number(number,count):
 def get_note():
     note = request.args.get('note')
     return notes.get_note_text(note)
+
+@app.route('/api/to_notes/',methods=['POST'])
+def to_notes():
+    id = request.args.get('id')
+    text = request.args.get('text')
+
+    if id and str(id)!='0':
+        notes.add_to_note(id,text)
+        return 'ok'
+    else:
+        return 'Не заполнен id заметки'
+
 
 @app.route('/api/archive/')
 def archive():
@@ -145,12 +183,3 @@ def posts_archive():
     # print(page)
 
     return json.dumps(result)
-
-
-@app.route('/api/forums/')
-def forums():
-    threads = sql_threads.get_threadlist()
-    forums = sql_threads.get_forums()
-    for thread in threads:
-        forums[thread['forumid']]['threads'].append(thread)
-    return json.dumps(forums)

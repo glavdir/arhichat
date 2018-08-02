@@ -1,21 +1,22 @@
 # -*- coding: utf-8 -*-
+# pylint:disable-msg=E1101
+import time
+import json
+from collections import OrderedDict
+import hashlib
+
+from sqlalchemy import desc
+from sqlalchemy import or_
+from sqlalchemy import and_
+
 from app import models
 from app import msgcount
 from app import parser
 from app import clients
 from app import redis
 from app import db
-# from app import trs
-from sqlalchemy import orm
-from sqlalchemy import desc
-from sqlalchemy import or_
-from sqlalchemy import and_
 from app.matfilter import matfilter
 from app import usernames
-import time
-import json
-from collections import OrderedDict
-
 
 grouptags = []
 
@@ -24,6 +25,37 @@ def get_user_id_by_session(bbsession):
     if session:
         return session.userid
     return 0
+
+def set_session_by_userid(userid):
+    # pylint:disable-msg=E1101
+    sessionhash = md5(str(time.time()))
+
+    newsession = models.arhsession()
+    newsession.userid = userid
+    newsession.sessionhash = sessionhash
+
+    db.session.add(newsession)
+    db.session.commit()
+
+    return sessionhash
+
+def md5(mystring):
+    return hashlib.md5(mystring.encode('utf-8')).hexdigest()
+
+def login(username,password):
+    user = get_user_by_username(username)
+    passwordhash = md5(md5(password)+user.salt)
+
+    result = {}
+
+    if user.password == passwordhash:
+        result['userid'] = user.userid
+        result['passwordhash'] = md5(passwordhash)
+    else:
+        result['userid'] = 0
+        result['passwordhash'] = ''
+
+    return result
 
 def userlook(user):
     if user==None:
@@ -56,35 +88,43 @@ def get_unread_pms(s_user):
     return redis.hgetall('pm_%s' % s_user)
 
 def get_active_users(s_user=0):
-    active_users = models.arhuser.query.filter(models.arhuser.lastactivity>time.time()-3600/2).all() #3600/2
-
-    for usrid in clients.values():
-        if usrid and usrid!=0:
-            active_users.append(get_user_by_userid(usrid))
-
-    # unread_pms = get_unread_pms(s_user)
-    # for key in unread_pms:
+    # active_users = models.arhuser.query.filter(models.arhuser.lastactivity>time.time()-3600/2).all() #3600/2
+    #
+    # for usrid in clients.values():
+    #     if usrid and usrid!=0:
+    #         active_users.append(get_user_by_userid(usrid))
+    #
+    # # unread_pms = get_unread_pms(s_user)
+    # # for key in unread_pms:
+    #
+    # res = [{'userid':'1', 'userlook':str(userlook(get_user_by_userid(1))), 'online':True, 'unread':False}]
+    # usr_dbl = []
+    #
+    # for usr in active_users:
+    #     if usr:
+    #         if not usr in usr_dbl and usr.userid!=1:
+    #             usr_dbl.append(usr)
+    #             # is_unread = ('usr_%s' % usr.userid) in unread_pms
+    #             try:
+    #                 res.append({'userid':str(usr.userid), 'userlook':userlook(usr),'online':True, 'unread':False})
+    #             except:
+    #                 pass
 
     res = [{'userid':'1', 'userlook':str(userlook(get_user_by_userid(1))), 'online':True, 'unread':False}]
-    usr_dbl = []
+    usr_dbl = ['1']
 
-    for usr in active_users:
-        if usr:
-            if not usr in usr_dbl and usr.userid!=1:
-                usr_dbl.append(usr)
-                # is_unread = ('usr_%s' % usr.userid) in unread_pms
-                try:
-                    res.append({'userid':str(usr.userid), 'userlook':userlook(usr),'online':True, 'unread':False})
-                except:
-                    pass
+    for usrid in clients.values():
+        if usrid and str(usrid)!='0' and not str(usrid) in usr_dbl:
+            res.append({'userid': str(usrid), 'userlook': userlook(get_user_by_userid(usrid)), 'online': True, 'unread': False})
+            usr_dbl.append(str(usrid))
 
     return res
 
 def get_user_by_userid(userid):
-    if userid:
+    if userid and str(userid)!='0':
         return models.arhuser.query.get(userid)
-    else:
-        return {'userid':0, 'timezoneoffset':0}
+    # else:
+    #     return {'userid':0, 'timezoneoffset':0, 'password':'pass'}
 
 def get_user_by_username(username):
     if username:
@@ -109,6 +149,7 @@ def get_username_byid(userid):
         return 'anonimous'
 
 def get_pm_users(userid):
+    # pylint:disable-msg=E1101
     result = db.session.execute('SELECT distinct s_private AS userid '
                                 'FROM  arhinfernoshout  WHERE  s_user = %s and s_private<>-1 '
                                 'UNION   '
@@ -116,7 +157,7 @@ def get_pm_users(userid):
                                 'FROM  arhinfernoshout  WHERE  s_private = %s and s_user<>-1 ' % (userid,userid)).fetchall()
     users = []
     for user in result:
-        users.append({'userid':user.userid,'userlook':get_userlook_byid(user.userid)})
+        users.append({'userid': user.userid, 'userlook': get_userlook_byid(user.userid)})
 
     return users
 

@@ -1,5 +1,6 @@
 <template>
     <div id="dc_app" class="wrapper">
+        <auth v-if="$store.state.curuserid=='0'"></auth>
         <arh-panel v-if="isLeftPanel" ref="leftPanel" class="leftPanel"  :panel="leftPanel" :panelName="'left'" :altPanelName="'right'" :panels="panels"  :isAltPanel="isRightPanel" :style="leftSize">
              <kong v-if="isSplitter || isLeftPanel" slot="kong"></kong>
         </arh-panel>
@@ -15,6 +16,7 @@
         <div v-html="opts_style"></div>
         <div v-html="opts_font_size"></div>
         <flash-message transitionIn="animated swing" class="flash-message-pool"></flash-message>
+        <div id="relativeContainer" ref="relativeContainer"></div>
     </div>
 </template>
 
@@ -26,6 +28,7 @@
     import Kong from './components/kong.vue';
     import Chat from './components/chat.vue';
     import Dialog from './components/dialog.vue';
+    import Auth from './components/auth.vue';
 
     import Notes from './components/notes';
     import VueRouter from 'vue-router';
@@ -36,6 +39,9 @@
     var socket = io.connect(global.curdomain, {reconnection: true, transports: [window.transport], timeout:30000});
     Vue.use(VueSocketio, socket);
     Object.defineProperty(Vue.prototype,"$bus",{get:function(){return this.$root.bus;}}); //Шина событий для обмена между компонентами
+
+    import isMobile from 'ismobilejs'
+    Object.defineProperty(Vue.prototype,"$isMobile",{get:function(){return isMobile}});
 
     import VueFlashMessage from 'vue-flash-message';
     Vue.use(VueFlashMessage);
@@ -59,6 +65,11 @@
     import 'vue-awesome/icons/floppy-o'
     import 'vue-awesome/icons/expand'
     import 'vue-awesome/icons/search'
+    import 'vue-awesome/icons/expand'
+    import 'vue-awesome/icons/compress'
+    import 'vue-awesome/icons/cog'
+    import 'vue-awesome/icons/commenting'
+    import 'vue-awesome/icons/commenting-o'
 
     const router = new VueRouter({
         mode: 'history',
@@ -154,18 +165,12 @@
         components:{
             'arh-panel': Panel,
             'kong':Kong,
+            'auth':Auth
         },
         created(){
-            var this_app = this;
-
+            let this_app = this;
             this_app.$store.commit('setLocal_opts',localStorage.getItem('local_opts'));
-            // axios.get(global.curdomain+'/api/threads/', {withCredentials:true})
-            //     .then(function (response) {
-            //         // console.log(response.data);
-            //         this_app.$store.commit('setThreads',        response.data.threads);
-            //         this_app.$store.commit('setLastThreadid',   response.data.threadid);
-            //         this_app.$bus.$emit('openThread',{threadid:response.data.threadid})
-            //     });
+            // this_app.$store.commit('setIsMobile',isMobile.any);
 
             if (this.$store.state.curuserid == 0){
                 axios.get(global.curdomain+'/api/user_auth/', {withCredentials:true})
@@ -176,11 +181,27 @@
                         if (response.data.opts.use_polling){
                             this_app.$socket.io.opts.transports = ['polling'];
                         }
+                        // if (response.data.userid=='0'){
+                        //     this_app.$router.push({path: '/', query: {left:'Auth'}});
+                        //     this_app.$store.commit('setPanel',{panel:'left',   param:'Auth'});
+                        //     this_app.$store.commit('setPanel',{panel:'right',  param:undefined});
+                        // }
                     });
             }
+
             if (this.hasPanelParams){
                 this.$store.commit('setPanel',{panel:'left',  param:this.$route.query.left});
                 this.$store.commit('setPanel',{panel:'right', param:this.$route.query.right});
+            }
+
+            if (isMobile.phone){
+                this.momentum.updateLocale('ru', {calendar : {
+                lastDay : 'L:LT',
+                sameDay : 'LT',
+                nextDay : 'L:LT',
+                lastWeek : 'L:LT',
+                nextWeek : 'L:LT',
+                sameElse : 'L:LT'},longDateFormat : {L:'DD.MM'}});
             }
        },
     }

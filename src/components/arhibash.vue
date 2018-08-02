@@ -11,20 +11,20 @@
             <medium-editor
                 class="arhibash_post"
                 :text='pagetext'
-                custom-tag='p'
+                custom-tag='div'
                 :options="editorOpts"
                 data-placeholder=" "
                 @edit="editBash($event)"
-
             />
+            <!--<quill-editor class="arhibash_post" v-model="pagetext" :options="quillOptions"></quill-editor>-->
         </div>
     </div>
 </template>
 
 <script>
-    import editor from 'vue2-medium-editor';
+    import editor from '../MediumEditor.js';
     import HTML2BBCode from 'html2bbcode'
-    var converter = new HTML2BBCode.HTML2BBCode({weaknewline:false});
+    let converter = new HTML2BBCode.HTML2BBCode({weaknewline:true});
 
     export default {
         data: function () {
@@ -33,16 +33,19 @@
                 postid:'',
                 time:0,
                 editorOpts:{
-                    toolbar:{buttons:['bold','italic','underline','strikethrough','removeFormat']},
-                    paste:{
-                        forcePlainText:true,
-                        cleanPastedHTML:true,
-                        cleanAttrs:['class', 'style', 'dir', 'text-align'],
-                        unwrapTags:['font','br'],
-                        cleanTags: ['label', 'meta'],
-                        cleanReplacements:[[/\n/g,'<br>']],
+                    toolbar:{
+                        buttons:['bold','italic','underline','strikethrough','removeFormat'],
+                        diffTop: (this.$isMobile.any) ? -50 : -10
                     },
-                }
+                    paste:{
+                        forcePlainText: false,
+                        cleanPastedHTML: true,
+                        cleanAttrs:['class', 'style', 'dir', 'text-align'],
+                        unwrapTags:['font','p'],
+                        cleanTags: ['label', 'meta'],
+                        CleanReplacements:[],
+                    },
+                },
             }
         },
         methods: {
@@ -66,7 +69,7 @@
             saveBash(event){
                 let this_app = this;
 
-                // console.log(converter.feed(this.pagetext).s);
+                console.log(converter.feed(this.pagetext).toString());
 
                 this.$socket.emit('save_bash',{postid:this.postid, pagetext:converter.feed(this.pagetext).s},function (result) {
                     if (result) {
@@ -98,7 +101,7 @@
             }
         },
         components: {
-            'medium-editor':editor
+            'medium-editor':editor,
         },
         created(){
             this.openLastBash();

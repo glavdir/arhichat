@@ -11,20 +11,22 @@
                 <button @click="canselEditForum">Отмена</button>
             </div>
             <div v-show="!isEdit" class="threads_forums">
-                <template v-for="forum in forums">
-                    <div :class="{threads_forum:true, threads_forum_root:forum.isRoot}">
+                <template>
+                    <div v-for="forum in orderedForums" :key="forum.order" :class="{threads_forum:true, threads_forum_root:forum.isRoot}">
                         <div class="threads_forum_title">{{forum.title}}</div>
+                        <!--{{forum.title}}-->
                         <div class="threads_forum_buttons">
                             <div v-if="!forum.isMain">
                                 <button @click="editForum(forum)">Изменить</button>
+                                <button @click="newThread(forum)">Новый канал</button>
                             </div>
                             <div v-if="forum.isMain">
                                 <button @click="newForum()">Новый модуль</button>
                             </div>
                         </div>
-                        <div v-show="forum.show" class="threads_threads">
-                             <div v-for="thread in forum.threads" class="threads_thread">{{thread.title}}</div>
-                        </div>
+                        <!--<div v-show="forum.show" class="threads_threads">-->
+                             <!--<div v-for="thread in forum.threads" class="threads_thread">{{thread.title}}</div>-->
+                        <!--</div>-->
                     </div>
                 </template>
             </div>
@@ -47,7 +49,7 @@
     export default {
         name:"threads",
         data:function(){return{
-            forums:'',
+            forums:[],
             curForum:{forumid:'',title:''},
             isEdit:false
         }},
@@ -57,6 +59,7 @@
                 axios.get(global.curdomain+'/api/forums/', {withCredentials:true})
                     .then(function (response) {
                         this_app.forums  = response.data;
+                        console.log(response.data);
                     });
             },
             editForum(forum){
@@ -66,15 +69,19 @@
             delForum(forum){
 
             },
+            newThread(forum){
+
+            },
             canselEditForum(){
                 this.isEdit = false;
             },
             saveForum(){
-                var this_app = this;
+                let this_app = this;
                 this.$socket.emit('save_forum',this.curForum,function (result) {
                     if (result && "forumid" in result){
                         this_app.isEdit = false;
-                        this_app.forums[result.forumid] = result;
+                        // this_app.forums[result.forumid] = result;
+                        this_app.curForum = result;
                         this_app.flash('Модуль '+result.title+' сохранен', 'success', {timeout: 2000});
                     }else{
                         let err = ("error" in result) ? result.error : '';
@@ -86,7 +93,15 @@
                 this.editForum({forumid:0,title:'Новый'})
             }
         },
-        computed: {},
+        computed: {
+            orderedForums() {
+                return this.forums.sort(function (firstItem,secondItem) {
+                    if (firstItem.orrder>secondItem.order){
+                        return 1;
+                    }
+                });
+            }
+        },
         components: {},
         created() {
             this.loadForums();

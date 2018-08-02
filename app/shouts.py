@@ -7,6 +7,7 @@ from app import models
 from app import db
 from app import queries
 from app import msgcount
+from app import parser
 
 def do_newshout(s_user, msg, s_me, s_private, dialog_id=''):
     newshout = models.arhinfernoshout()
@@ -64,7 +65,7 @@ def edit_shout_in_last(editshout):
     if str(editshout.s_private)=='-1':
         shout = last_messages[editshout.sid]
         if shout:
-            shout['msg'] = editshout.s_shout
+            shout['msg'] = parser.format(editshout.s_shout)
 
 def get_array_last_messages():
     return list(last_messages.values())[-msgcount:]

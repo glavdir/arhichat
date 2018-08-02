@@ -1,4 +1,27 @@
-/*@import 'font-icons.css';*/
+.login_form{
+    position:fixed;
+    z-index:2;
+    background:rgba(0,0,0,0.2);;
+    width:100%;
+    height:100%;
+    display:flex;
+}
+
+.login_group{
+    position:fixed;
+    top:calc(50% - 5rem);
+    left:calc(50% - 8rem);
+    background:white;
+    height:10rem;
+    width:16rem;
+    box-sizing:border-box;
+    padding:1rem;
+    display:flex;
+    flex-direction:column;
+    justify-content:space-around;
+    border:1px solid gray;
+    border-radius:0.25rem;
+}
 
 *{text-decoration-skip-ink: none;}
 
@@ -30,6 +53,12 @@
 body{
     margin:0;
 }
+
+html, body{
+    min-height: 100%;
+    max-height: 100%;
+}
+
 
 html,input,button,textarea,select{
     outline: none;
@@ -111,3 +140,75 @@ A {color: #444}
 }
 
 p{margin: 0;}
+
+
+
+/*Панель*/
+
+.panelHeader{
+    height: 2rem;
+    width: 100%;
+    background: #444;
+    display: flex;
+}
+
+.panelTitle{
+    line-height: 2rem;
+    color: white;
+    flex: 1;
+    user-select: none;
+}
+
+.panelFlex{
+    line-height: 2rem;
+    color: white;
+    flex: 1;
+}
+
+.panelContent{
+    height: calc(100% - 2rem);
+}
+
+.panelSelect-bp__btn{
+    height: 2rem;
+    box-sizing: border-box;
+    border: none !important;
+    color: white;
+    padding: 0.5rem !important;
+}
+
+.panelSelect-bp__btn--active{
+    background: transparent !important;
+}
+
+.panelOpenClose{
+    height: 2rem;
+    line-height: 2rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    cursor: pointer;
+    color: white;
+}
+
+.panelLabel{
+    margin: 0.25rem;
+    cursor: pointer;
+    display: block;
+    text-decoration: none;
+}
+
+.panelLabelLine{
+    margin: 0.25rem;
+    height: 1px;
+    border-bottom: 1px solid lightgrey;
+    margin-top: 0.4rem;
+    margin-bottom: 0.4rem;
+}
+
+.panelOpenClose:hover{
+    color: lightgrey;
+}
+
+:root {
+   --app-height: 100%;
+}

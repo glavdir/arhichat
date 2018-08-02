@@ -2,7 +2,6 @@ import Vue from 'vue'
 import App from './App.vue'
 import store from './store.js'
 import '@voerro/vue-tagsinput/dist/style.css';
-// import Global from './global.js'
 
 import moment from 'moment';
 moment.updateLocale('ru', {calendar : {
@@ -12,6 +11,7 @@ moment.updateLocale('ru', {calendar : {
         lastWeek : 'L:LT',
         nextWeek : 'L:LT',
         sameElse : 'L:LT'},longDateFormat : {L:'DD.MM'}});
+
 Vue.prototype.momentum = moment;
 
 var vue_app = new Vue({
@@ -21,8 +21,13 @@ var vue_app = new Vue({
     data:{
         bus: new Vue({})
     },
-    methods:{
-    }
 });
 
 window.vue_app = vue_app;
+
+window.onfocus = function () {
+    if (window.vue_app.$isMobile.any){
+        // console.log('Mobile!');
+        window.scrollTop = 0;
+    }
+};

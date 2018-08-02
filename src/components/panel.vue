@@ -14,6 +14,7 @@
                     <div class="panelLabelLine"></div>
                     <a class="panelLabel" href="http://arhimag.org">Форум</a>
                     <a class="panelLabel" href="http://wiki.arhimag.org">Архивики</a>
+                    <span class="panelLabel" @click="unlogin">Выход</span>
                 </template>
             </dropdown>
             <div class="panelFlex"> </div>
@@ -32,8 +33,10 @@
 </template>
 
 <script>
-	import Dropdown from 'bp-vuejs-dropdown';
-    import global from '../global.js';
+	// import Vue from 'vue';
+    import Dropdown from 'bp-vuejs-dropdown';
+    // import VueCookie from 'vue-cookie';
+    // Vue.use(VueCookie);
 
     export default {
 	    props:['panel', 'panels', 'panelName', 'isAltPanel', 'altPanelName'],
@@ -69,6 +72,11 @@
 	            this.$store.commit('openPanel',{panel:this.altPanelName});
 	            this.updateURL();
             },
+            unlogin(){
+                this.$cookie.delete('bbpassword');
+                this.$cookie.delete('bbuserid');
+                location.reload();
+            }
         },
         mounted(){
             this.openThread = (data) => {
@@ -85,68 +93,4 @@
 </script>
 
 <style>
-    .panelHeader{
-        height: 2rem;
-        width: 100%;
-        background: #444;
-        display: flex;
-    }
-
-    .panelTitle{
-        line-height: 2rem;
-        color: white;
-        flex: 1;
-        user-select: none;
-    }
-
-    .panelFlex{
-        line-height: 2rem;
-        color: white;
-        flex: 1;
-    }
-
-    .panelContent{
-        height: calc(100% - 2rem);
-    }
-
-    .panelSelect-bp__btn{
-        height: 2rem;
-        box-sizing: border-box;
-        border: none !important;
-        color: white;
-        padding: 0.5rem !important;
-    }
-
-    .panelSelect-bp__btn--active{
-        background: transparent !important;
-    }
-
-    .panelOpenClose{
-        height: 2rem;
-        line-height: 2rem;
-        margin-left: 0.5rem;
-        margin-right: 0.5rem;
-        cursor: pointer;
-        color: white;
-    }
-
-    .panelLabel{
-        margin: 0.25rem;
-        cursor: pointer;
-        display: block;
-        text-decoration: none;
-    }
-
-    .panelLabelLine{
-        margin: 0.25rem;
-        height: 1px;
-        border-bottom: 1px solid lightgrey;
-        margin-top: 0.4rem;
-        margin-bottom: 0.4rem;
-    }
-
-    .panelOpenClose:hover{
-        color: lightgrey;
-    }
-
 </style>

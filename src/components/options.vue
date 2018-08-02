@@ -54,8 +54,8 @@ import global from '../global.js';
 var styleList = {
     default:{title:'По умолчанию'},
     dragon:{title:'Дракон'},
-    // dragon_old:{title:'Дракон (маленький шрифт)'},
     oceanzero:{title:'Океан'},
+    experimental:{title:'Экспериментальный'},
 };
 
 export default {
