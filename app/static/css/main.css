@@ -55,8 +55,8 @@ body{
 }
 
 html, body{
-    min-height: 100%;
-    max-height: 100%;
+    min-height: calc(100%);
+    max-height: calc(100%);
 }
 
 
@@ -175,6 +175,7 @@ p{margin: 0;}
     border: none !important;
     color: white;
     padding: 0.5rem !important;
+    user-select: none;
 }
 
 .panelSelect-bp__btn--active{
@@ -195,6 +196,7 @@ p{margin: 0;}
     cursor: pointer;
     display: block;
     text-decoration: none;
+    user-select: none;
 }
 
 .panelLabelLine{

@@ -25,9 +25,13 @@ var vue_app = new Vue({
 
 window.vue_app = vue_app;
 
-window.onfocus = function () {
+function mobileSizeFix() {
     if (window.vue_app.$isMobile.any){
-        // console.log('Mobile!');
-        window.scrollTop = 0;
+        let vH = Math.max(document.documentElement.clientHeight, window.innerHeight || 0);
+        document.getElementById("dc_app").setAttribute("style", "height:" + vH + "px;");
+        // console.log(vH);
     }
-};
+}
+
+window.onfocus = mobileSizeFix;
+window.onresize = mobileSizeFix;

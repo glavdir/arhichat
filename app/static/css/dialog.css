@@ -255,7 +255,7 @@
 }
 
 .dialog_buttons_conteiner{
-    overflow: hidden;
+    overflow: visible;
     /* width: 100%; */
     border-top: 1px solid rgba(1,1,1,0.08);
     /* padding-right: 1rem; */

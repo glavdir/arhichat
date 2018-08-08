@@ -1,39 +1,60 @@
 <template>
     <div class="notes_root">
-        <div class="notes_tabs_nav">
+        <div class="notes_header">
             <div class="notes_tabs_actions">
                 <button class="bttn icon-conteiner" @click="delTab" title="Удалить заметку"><icon name="trash"></icon></button>
-                <!--<span class="flex_splitter"></span>-->
                 <button class="bttn icon-conteiner" @click="addTab" title="Добавить заметку"><icon name="plus"></icon></button>
-            </div><div class="notes_tabs">
-                <div
-                     v-for="(tab, index) in tabs"
-                     :key="tab.id"
-                     :data-noteid="tab.id"
-                     :class="[tab.id === curTab ? 'notes_tab notes_tab_active' : 'notes_tab']"
-                     @click="tabActivate(tab)"
-                     @dblclick.prevent="tabEdit(tab)"
-                     v-dragging="{ item: tab, list: tabs, group: 'notes' }"
-                >
-                    <div class="notes_tab_label" v-if = '!tab.editing'>{{tabTitle(tab)}}</div>
-                    <div class="notes_tab_label notes_tab_editing" v-focus="tab.editing" v-if = 'tab.editing' contenteditable="true" @blur="tabEndChange(tab,$event)" @keydown.enter.prevent="tabEndChange(tab,$event)">{{tab.title}}</div>
+            </div>
+            <div class="note_bar">
+                <div class="note_title">
+                    <div v-if="!isEditTittle" @dblclick.prevent="tabEdit">{{noteTitle}}</div>
+                    <div v-if="isEditTittle" @keydown.enter="editConfirm"><input v-focus="isEditTittle" class="editNoteTitle" v-model="noteTitle"/></div>
+                </div>
+                <div class="note_opts">
+                    <button @click="lockNote" class="bttn icon-conteiner">
+                        <icon :name=" !notePrivate ? 'unlock' : 'lock'"></icon>
+                    </button>
                 </div>
             </div>
         </div>
-        <!--:options="{toolbar: false}"-->
-        <div class="note_text">
-        <medium-editor
-            class="note_editor"
-            :text='noteText'
-            custom-tag='div'
-            :options="editorOpts"
-            data-placeholder=" "
-            v-on:edit='editNote($event)'/>
+        <div class="notes_wrapper">
+            <div class="notes_tabs_nav">
+                <div class="notes_tabs">
+                    <div
+                         v-for="(tab, index) in tabs"
+                         :key="tab.id"
+                         :data-noteid="tab.id"
+                         :class="[tab.id === curTab ? 'notes_tab notes_tab_active' : 'notes_tab']"
+                         @click="tabActivate(tab)"
+                         v-dragging="{ item: tab, list: tabs, group: 'notes' }"
+                    >
+                        <div class="notes_tab_label" v-if = '!tab.editing'>{{tabTitle(tab)}}</div>
+                        <!--<div class="notes_tab_label notes_tab_editing" v-focus="tab.editing" v-if = 'tab.editing' contenteditable="true" @blur="tabEndChange(tab,$event)" @keydown.enter.prevent="tabEndChange(tab,$event)">{{tab.title}}</div>-->
+                    </div>
+                </div>
+            </div>
+            <!--:options="{toolbar: false}"-->
+            <div class="note_text">
+                <medium-editor
+                    class="note_editor"
+                    :text='noteText'
+                    custom-tag='div'
+                    :options="editorOpts"
+                    data-placeholder=" "
+                    v-on:edit='editNote($event)'/>
+            </div>
+
         </div>
+
     </div>
 </template>
 
 <script>
+    import 'vue-awesome/icons/lock'
+    import 'vue-awesome/icons/unlock'
+
+    import mySwitch from 'vue-switch/switch-2.vue';
+
     import diff_match_patch from 'diff-match-patch'
     var dmp = new diff_match_patch.diff_match_patch();
 
@@ -50,6 +71,9 @@
                 tabs: [],
                 curTab:'',
                 noteText:'',
+                noteTitle:'',
+                notePrivate:false,
+                isEditTittle:false,
                 editorOpts:{
                     toolbar:{
                         buttons:['bold','italic','underline','strikethrough','removeFormat'],
@@ -65,8 +89,8 @@
             }
         },
         methods: {
-            removeTab(index) {
-                this.tabs.splice(index, 1)
+            getTab(tabID) {
+                return this.tabs[global.findObject(this.tabs,'id',tabID)];
             },
             addTab() {
                 var this_app = this;
@@ -102,15 +126,17 @@
                 this.$socket.emit('open_note',{id:tab.id},function (data) {
                     this_app.curTab = data.id;
                     this_app.noteText = data.note;
+                    this_app.noteTitle = tab.title;
+                    this_app.notePrivate = tab.private;
                 });
             },
-            tabEdit(tab){
-                tab.editing = true;
+            tabEdit(){
+                this.isEditTittle = true;
             },
-            tabEndChange(tab,event){
-                tab.editing = false;
-                tab.title = event.target.innerText;
-                this.$socket.emit('rename_note',{id:tab.id,title:tab.title});
+            editConfirm(){
+                this.getTab(this.curTab).title = this.noteTitle;
+                this.isEditTittle = false;
+                this.$socket.emit('rename_note',{id:this.curTab,title:this.noteTitle});
             },
             tabTitle:function (tab) {
                 return (tab.title=='' || !tab.title)?'<заметка>':tab.title;
@@ -129,6 +155,12 @@
                     order.push(''+this.tabs[ind].id);
                 }
                 this.$socket.emit('notes_order',{order:order});
+            },
+            lockNote(){
+                var this_app = this;
+                this.$socket.emit('reprivate_note',{id:this.curTab},function (data) {
+                    this_app.notePrivate = data;
+                });
             }
         },
         computed:{
@@ -138,7 +170,8 @@
 
         },
         components: {
-            'medium-editor':editor
+            'medium-editor':editor,
+            'my-switch': mySwitch
         },
         mounted(){
             this.$dragging.$on('dragend', () => {

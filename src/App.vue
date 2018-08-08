@@ -76,6 +76,15 @@
         routes: []
     });
 
+    Vue.directive('focus', {
+        inserted: function (el, binding, vnode) {
+            Vue.nextTick(function () {
+                el.focus()
+            })
+            console.log('!!');
+        }
+    });
+
     const panels = {
         Chat:    {title:'Чат',              component:Chat},
         Dialog:  {title:'Игра',             component:Dialog},

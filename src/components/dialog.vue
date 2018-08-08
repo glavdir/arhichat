@@ -114,6 +114,8 @@ import global from '../global.js';
 import Vue from 'vue';
 import axios from 'axios';
 import diff_match_patch from 'diff-match-patch'
+import deltaToBB from '../quillDeltaToBB.js';
+
 let dmp = new diff_match_patch.diff_match_patch();
 
 import HTML2BBCode from 'html2bbcode'
@@ -200,7 +202,9 @@ export default {
             placeholder: false,
             extensions: {'toNotes': new toNotes()}
         },
-
+        // quillOpts:{
+        //     theme:'bubble'
+        // }
     }},
     computed:{
         curuserid:function(){
@@ -432,13 +436,20 @@ export default {
         get_msg_html(data, contenteditable) {
             // return "<div class='reply' id='"+data.id+"' contenteditable='"+contenteditable+"' style='color:"+data.color+"'>"+nl2br(data.msg)+"</div>";
         },
-        emitChanegedPost(pst){
+        emitChanegedPost(pst,event){
             this.$socket.emit('dialog_change', {msg:this.toBB(pst.pagetext), id:pst.postid, color:pst.color});//, color:event.event.target.style.color
+
+            // this.$socket.emit('dialog_change', {
+            //     msg:deltaToBB.deltaToBB(event.quill.getContents()),
+            //     id:pst.postid,
+            //     color:pst.color});
+
+
         },
         editPost(pst,pstkey,event){
             pst.pagetext = event.event.target.innerHTML;
-            // this.$socket.emit('dialog_change', {msg:this.toBB(event.event.target.innerHTML), id:pst.postid, color:pst.color});//, color:event.event.target.style.color
-            this.emitChanegedPost(pst);
+            // pst.pagetext = event.html;
+            this.emitChanegedPost(pst, event);
         },
         changePostColor(pst){
             let parser = new DOMParser();

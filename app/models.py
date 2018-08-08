@@ -84,7 +84,7 @@ class notes(db.Model):
     id      = db.Column(db.Integer,   primary_key = True)
     title   = db.Column(db.CHAR(32), index=False, unique=False)
     author  = db.Column(db.Integer,  index=False, unique=False)
-    private = db.Column(db.Integer, index=False, unique=False)
+    private = db.Column(db.Integer,  index=False, unique=False)
     text    = db.Column(db.Text,     index=False, unique=False)
 
 

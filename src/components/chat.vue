@@ -57,14 +57,6 @@
     import Vue from 'vue';
     import global from '../global.js';
 
-    Vue.directive('focus', {
-        inserted: function (el, binding, vnode) {
-            Vue.nextTick(function () {
-                el.focus()
-            })
-        }
-    });
-
     export default {
         data: function() {return{
             channels: {

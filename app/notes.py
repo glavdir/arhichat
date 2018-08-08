@@ -18,14 +18,14 @@ def get_notes_list():
 
     # print(order)
 
-    noteslist = db.session.execute("SELECT id,title FROM notes WHERE private=0 ORDER BY FIND_IN_SET(id,'"+order+"'), id").fetchall()
+    noteslist = db.session.execute("SELECT id,title,private FROM notes WHERE (private=0 or author="+session['s_user']+") ORDER BY FIND_IN_SET(id,'"+order+"'), id").fetchall()
     # notes = {}
     # for note in noteslist:
     #     notes['note_'+str(note.id)] ={'id':note.id, 'title':note.title, 'editing':False}
 
     notes = []
     for note in noteslist:
-        notes.append({'id':note.id, 'title':note.title, 'editing':False})
+        notes.append({'id':note.id, 'title':note.title, 'private':bool(note.private)})
 
     return notes
 
@@ -51,6 +51,16 @@ def rename_note(data):
     note.title = data['title']
     db.session.commit()
     return ''
+
+@socketio.on('reprivate_note')
+def reprivate_note(data):
+    note= models.notes.query.filter_by(id=data['id']).first()
+
+    if str(note.author) == str(session['s_user']):
+        note.private = int(not note.private)
+        db.session.commit()
+
+    return bool(note.private)
 
 @socketio.on('del_note')
 def rename_note(data):
